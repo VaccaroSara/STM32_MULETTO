@@ -94,6 +94,51 @@ typedef struct VehicleData {
 
 /* USER CODE END PD */
 
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PD */
+
 /* Private
 /* USER CODE END PM */
 
@@ -246,7 +291,9 @@ Error_Handler();
 
 
   //PWM Servo
-  	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+      TIM1->BDTR |= TIM_BDTR_MOE;
+
   	//PWM DC motor
   	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
@@ -352,10 +399,15 @@ Error_Handler();
 
   		    set_PWM_and_dir(duty_RC, dir_RC);
   		}*/
-  		servo_motor(-20);
+  		/*servo_motor(-20);
   		HAL_Delay(1000);
   		servo_motor(20);
-  		HAL_Delay(1000);
+  		HAL_Delay(1000);*/
+  		TIM1->CCR2 = 1200; // Impulso di 1200 microsecondi (sterza da un lato)
+  		  HAL_Delay(1000);
+
+  		  TIM1->CCR2 = 1800; // Impulso di 1800 microsecondi (sterza dall'altro)
+  		  HAL_Delay(1000);
   	}
     /* USER CODE END WHILE */
 
@@ -572,7 +624,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 63;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 1999;
+  htim1.Init.Period = 19999;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;

@@ -27,7 +27,21 @@ void servo_motor(float angolo)
 
 // VECCHIA FUNZIONE SERVO (MIUZEI MS24)
 void servo_motor(float deg_angle){
-	if(deg_angle < MIN_ANGOLO)
+	void servo_motor(float deg_angle){
+		if(deg_angle < MIN_ANGOLO)
+			deg_angle = MIN_ANGOLO;
+		else if (deg_angle > MAX_ANGOLO)
+			deg_angle = MAX_ANGOLO;
+
+		float conv_angolo = deg_angle + DRITTO;
+
+		// Calcola i microsecondi
+		float t_on = 1815 - (conv_angolo - 57) * 7.3255814;
+
+		// MANDALO DIRETTAMENTE AL TIMER (Tagliando i decimali con uint32_t)
+		TIM1->CCR2 = (uint32_t)t_on;
+	}
+	/*if(deg_angle < MIN_ANGOLO)
 			deg_angle = MIN_ANGOLO;
 
 	else if (deg_angle > MAX_ANGOLO)
@@ -40,5 +54,20 @@ void servo_motor(float deg_angle){
 
 	float duty=t_on/20000; // T_ON/T, dove T=20000 è il periodo ("UpdateEvent") dell'onda convertito in microsecondi: (10^6){(Timer_clk)/([Prescaler+1][Period+1]))}^-1
 	float ccr = (duty*(TIM1->ARR));
-	//TIM1->CCR2=ccr;
+	TIM1->CCR2=ccr;*/
+	// 1. LIMITATORE DI SICUREZZA (Evita di spaccare lo sterzo)
+	    /*if (deg_angle > 20) {
+	    	deg_angle = 20;
+	    } else if (deg_angle < -20) {
+	    	deg_angle = -20;
+	    }
+
+	    // 2. LA FORMULA MAGICA (Traduzione da gradi a microsecondi)
+	    // Se angolo = 0   --> microsecondi = 1500 (Centro perfetto)
+	    // Se angolo = 20  --> microsecondi = 1500 + (20 * 25) = 2000 (Tutto a destra)
+	    // Se angolo = -20 --> microsecondi = 1500 + (-20 * 25) = 1000 (Tutto a sinistra)
+	    int microsecondi = 1500 + (deg_angle * 25);
+
+	    // 3. MANDIAMO IL SEGNALE AL NUOVO CANALE 2 (PE11)
+	    TIM1->CCR2 = microsecondi;*/
 }
