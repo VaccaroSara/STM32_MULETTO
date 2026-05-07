@@ -25,22 +25,36 @@ void servo_motor(float angolo)
 
 */
 
-// VECCHIA FUNZIONE SERVO (MIUZEI MS24)
-void servo_motor(float deg_angle){
-	void servo_motor(float deg_angle){
-		if(deg_angle < MIN_ANGOLO)
-			deg_angle = MIN_ANGOLO;
-		else if (deg_angle > MAX_ANGOLO)
-			deg_angle = MAX_ANGOLO;
+//  FUNZIONE SERVO (MIUZEI MS24) PROVA GEMINI
+void servo_motor(float deg_angle)
+{
+    // 1. Limita l'angolo richiesto ai limiti meccanici (Manteniamo il vostro)
+    if(deg_angle < MIN_ANGOLO)
+        deg_angle = MIN_ANGOLO;
+    else if (deg_angle > MAX_ANGOLO)
+        deg_angle = MAX_ANGOLO;
 
-		float conv_angolo = deg_angle + DRITTO;
+    // 2. Calcolo angolo reale
+    float conv_angolo = deg_angle + DRITTO;
 
-		// Calcola i microsecondi
-		float t_on = 1815 - (conv_angolo - 57) * 7.3255814;
+    // 3. Calcolo microsecondi (La vostra formula calibrata perfetta)
+    // 1815 = T_on per conv_angolo = 57°
+    // 7.32 = variazione T_on per ogni grado
+    float t_on = 1815.0 - (conv_angolo - 57.0) * 7.3255814;
 
-		// MANDALO DIRETTAMENTE AL TIMER (Tagliando i decimali con uint32_t)
-		TIM1->CCR2 = (uint32_t)t_on;
-	}
+    // 4. PARACADUTE DI SICUREZZA (500us - 2500us)
+    // Se per qualche assurdo motivo t_on esce dai limiti, lo blocchiamo qui
+    if (t_on < 500.0) {
+        t_on = 500.0;
+    } else if (t_on > 2500.0) {
+        t_on = 2500.0;
+    }
+
+    // 5. Invio diretto al Timer
+    TIM1->CCR2 = (uint32_t)t_on;
+}
+
+//FORMULA STORICA
 	/*if(deg_angle < MIN_ANGOLO)
 			deg_angle = MIN_ANGOLO;
 
@@ -70,4 +84,4 @@ void servo_motor(float deg_angle){
 
 	    // 3. MANDIAMO IL SEGNALE AL NUOVO CANALE 2 (PE11)
 	    TIM1->CCR2 = microsecondi;*/
-}
+

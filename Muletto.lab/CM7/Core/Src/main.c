@@ -161,11 +161,12 @@ uint32_t IC_Val1_CH1 = 0;
 uint32_t IC_Val2_CH1 = 0;
 uint32_t Differenza_CH1 = 0;
 uint8_t Is_First_Captured_CH1 = 0; // 0 = aspetta salita, 1 = aspetta discesa
+uint32_t steering_us = 1500;       // Il tempo del gas in microsecondi (1500 = fermo)
 uint32_t throttle_us = 1500;       // Il tempo del gas in microsecondi (1500 = fermo)
 serialData data;
 vehicleData vehicleState;
-volatile uint8_t new_rc_data = 0;
-
+volatile uint8_t new_rc_steering = 0;
+volatile uint8_t new_rc_throttle = 0;
 //PID
 PID pid_traction, pid_steering;
 double u_trazione = 0;
@@ -293,18 +294,20 @@ Error_Handler();
   //PWM Servo
   	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
       TIM1->BDTR |= TIM_BDTR_MOE;
+      TIM1->CCR2 = 1500;
+        HAL_Delay(2000); // Aspetta 2 secondi dritto
 
   	//PWM DC motor
   	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+
   	//ENCODER TIMER
   	HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
   	//10ms TIMER
   	HAL_TIM_Base_Start_IT(&htim6);
 
-  	HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_1);
-  	HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_1);
-
+  	//HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_1);
+  	HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_4);
 
   	//PID traction
   	init_PID(&pid_traction, TRACTION_SAMPLING_TIME, MAX_U_TRACTION,
@@ -346,69 +349,73 @@ Error_Handler();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  	float throttle_filtered = 1500.0f;
+
   	uint32_t MAX_SPEED = 30;
+
+  	float steering_angle = 0.0f;
+  	float steering_filtered = 1500.0f;
+  	float throttle_filtered = 1500.0f;
+
 
   	while (1)
   	{
-  		/*if(new_rc_data)
+  		if(new_rc_throttle)
   		{
-  		    new_rc_data = 0;
+  		    new_rc_throttle = 0;
 
   		    throttle_filtered =
-  		        throttle_filtered * 0.80f +
-  		        ((float)throttle_us * 0.20f);
+  		        throttle_filtered * 0.8f +
+  		        ((float)throttle_us * 0.2f);
 
   		    uint32_t duty_RC = 0;
   		    uint8_t dir_RC = 0;
 
-  		    // AVANTI
   		    if(throttle_filtered > 1560)
   		    {
   		        dir_RC = 0;
-
-  		        duty_RC =
-  		        ((throttle_filtered - 1560) * MAX_SPEED) /
-  		        (2000 - 1560);
+  		        duty_RC = ((throttle_filtered - 1560) * MAX_SPEED) / (2000 - 1560);
   		    }
-
-  		    // INDIETRO
   		    else if(throttle_filtered < 1440)
   		    {
   		        dir_RC = 1;
-
-  		        duty_RC =
-  		        ((1440 - throttle_filtered) * MAX_SPEED) /
-  		        (1440 - 1000);
+  		        duty_RC = ((1440 - throttle_filtered) * MAX_SPEED) / (1440 - 1000);
   		    }
-
-  		    // FERMO
   		    else
   		    {
   		        duty_RC = 0;
   		        dir_RC = 0;
   		    }
 
-  		    // COPPIA MINIMA PARTENZA
   		    if(duty_RC > 0 && duty_RC < 20)
   		        duty_RC = 20;
 
-  		    // LIMITE MASSIMO
   		    if(duty_RC > MAX_SPEED)
   		        duty_RC = MAX_SPEED;
 
   		    set_PWM_and_dir(duty_RC, dir_RC);
-  		}*/
-  		/*servo_motor(-20);
-  		HAL_Delay(1000);
-  		servo_motor(20);
-  		HAL_Delay(1000);*/
-  		TIM1->CCR2 = 1200; // Impulso di 1200 microsecondi (sterza da un lato)
-  		  HAL_Delay(1000);
+  		}
 
-  		  TIM1->CCR2 = 1800; // Impulso di 1800 microsecondi (sterza dall'altro)
-  		  HAL_Delay(1000);
+  		if(new_rc_steering)
+  		{
+  		    new_rc_steering = 0;
+
+  		    steering_filtered =
+  		        steering_filtered * 0.8f +
+  		        ((float)steering_us * 0.2f);
+
+  		    if(steering_filtered < 1000)
+  		        steering_filtered = 1000;
+
+  		    if(steering_filtered > 2000)
+  		        steering_filtered = 2000;
+
+  		    steering_angle =
+  		        ((steering_filtered - 1500.0f) * 5.0f) / 500.0f;
+
+  		    servo_motor(steering_angle);
+  		}
   	}
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -1073,32 +1080,81 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-{
-  if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)  // <--- ORA ASCOLTIAMO IL CANALE 1
-  {
-    if (Is_First_Captured_CH1 == 0)
+{  // =========================
+    // STERZO -> PA3 (TIM5 CH4)
+    // =========================
+    if (htim->Instance == TIM5 &&
+        htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
     {
-      IC_Val1_CH1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); // <--- CANALE 1
-      Is_First_Captured_CH1 = 1;
-      __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_FALLING);
+        static uint32_t ic_val1 = 0;
+        uint32_t ic_val2 = 0;
+
+        if (Is_First_Captured_CH1 == 0)
+        {
+            ic_val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
+            Is_First_Captured_CH1 = 1;
+
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim,
+                                          TIM_CHANNEL_4,
+                                          TIM_INPUTCHANNELPOLARITY_FALLING);
+        }
+        else
+        {
+            ic_val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
+
+            if (ic_val2 > ic_val1)
+                Differenza_CH1 = ic_val2 - ic_val1;
+            else
+                Differenza_CH1 = (0xFFFFFFFF - ic_val1) + ic_val2;
+
+            steering_us = Differenza_CH1;
+            new_rc_steering = 1;
+
+            Is_First_Captured_CH1 = 0;
+
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim,
+                                          TIM_CHANNEL_4,
+                                          TIM_INPUTCHANNELPOLARITY_RISING);
+        }
     }
-    else if (Is_First_Captured_CH1 == 1)
+
+    // =========================
+    // TRAZIONE -> PA0 (TIM5 CH1)
+    // =========================
+    if (htim->Instance == TIM5 &&
+        htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
     {
-      IC_Val2_CH1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); // <--- CANALE 1
+        static uint32_t ic_val1_t = 0;
+        uint32_t ic_val2_t = 0;
 
-      if (IC_Val2_CH1 > IC_Val1_CH1) {
-          Differenza_CH1 = IC_Val2_CH1 - IC_Val1_CH1;
-      } else if (IC_Val1_CH1 > IC_Val2_CH1) {
-          Differenza_CH1 = (0xFFFFFFFF - IC_Val1_CH1) + IC_Val2_CH1;
-      }
+        if (Is_First_Captured_CH1 == 0)
+        {
+            ic_val1_t = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
+            Is_First_Captured_CH1 = 1;
 
-      throttle_us = Differenza_CH1;
-      new_rc_data = 1;   // <-- QUI PRECISO
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim,
+                                          TIM_CHANNEL_1,
+                                          TIM_INPUTCHANNELPOLARITY_FALLING);
+        }
+        else
+        {
+            ic_val2_t = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
 
-      Is_First_Captured_CH1 = 0;
-      __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_RISING);
+            if (ic_val2_t > ic_val1_t)
+                Differenza_CH1 = ic_val2_t - ic_val1_t;
+            else
+                Differenza_CH1 = (0xFFFFFFFF - ic_val1_t) + ic_val2_t;
+
+            throttle_us = Differenza_CH1;
+            new_rc_throttle = 1;
+
+            Is_First_Captured_CH1 = 0;
+
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim,
+                                          TIM_CHANNEL_1,
+                                          TIM_INPUTCHANNELPOLARITY_RISING);
+        }
     }
-  }
 }
 
 
