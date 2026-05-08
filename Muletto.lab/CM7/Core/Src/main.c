@@ -160,7 +160,8 @@ UART_HandleTypeDef huart3;
 uint32_t IC_Val1_CH1 = 0;
 uint32_t IC_Val2_CH1 = 0;
 uint32_t Differenza_CH1 = 0;
-uint8_t Is_First_Captured_CH1 = 0; // 0 = aspetta salita, 1 = aspetta discesa
+uint8_t Is_First_Captured_Steering = 0; // 0 = aspetta salita, 1 = aspetta discesa
+uint8_t Is_First_Captured_Throttle = 0; // 0 = aspetta salita, 1 = aspetta discesa
 uint32_t steering_us = 1500;       // Il tempo del gas in microsecondi (1500 = fermo)
 uint32_t throttle_us = 1500;       // Il tempo del gas in microsecondi (1500 = fermo)
 serialData data;
@@ -306,7 +307,7 @@ Error_Handler();
   	//10ms TIMER
   	HAL_TIM_Base_Start_IT(&htim6);
 
-  	//HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_1);
+  	HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_1);
   	HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_4);
 
   	//PID traction
@@ -350,7 +351,7 @@ Error_Handler();
   /* USER CODE BEGIN WHILE */
 
 
-  	uint32_t MAX_SPEED = 30;
+  	uint32_t MAX_SPEED = 20;
 
   	float steering_angle = 0.0f;
   	float steering_filtered = 1500.0f;
@@ -372,12 +373,12 @@ Error_Handler();
 
   		    if(throttle_filtered > 1560)
   		    {
-  		        dir_RC = 0;
+  		        dir_RC = 1;
   		        duty_RC = ((throttle_filtered - 1560) * MAX_SPEED) / (2000 - 1560);
   		    }
   		    else if(throttle_filtered < 1440)
   		    {
-  		        dir_RC = 1;
+  		        dir_RC = 0;
   		        duty_RC = ((1440 - throttle_filtered) * MAX_SPEED) / (1440 - 1000);
   		    }
   		    else
@@ -410,7 +411,7 @@ Error_Handler();
   		        steering_filtered = 2000;
 
   		    steering_angle =
-  		        ((steering_filtered - 1500.0f) * 5.0f) / 500.0f;
+  		        -((steering_filtered - 1500.0f) * 15.0f) / 500.0f;
 
   		    servo_motor(steering_angle);
   		}
@@ -1089,10 +1090,10 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
         static uint32_t ic_val1 = 0;
         uint32_t ic_val2 = 0;
 
-        if (Is_First_Captured_CH1 == 0)
+        if (Is_First_Captured_Steering == 0)
         {
             ic_val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
-            Is_First_Captured_CH1 = 1;
+            Is_First_Captured_Steering = 1;
 
             __HAL_TIM_SET_CAPTUREPOLARITY(htim,
                                           TIM_CHANNEL_4,
@@ -1110,7 +1111,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
             steering_us = Differenza_CH1;
             new_rc_steering = 1;
 
-            Is_First_Captured_CH1 = 0;
+            Is_First_Captured_Steering = 0;
 
             __HAL_TIM_SET_CAPTUREPOLARITY(htim,
                                           TIM_CHANNEL_4,
@@ -1127,10 +1128,10 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
         static uint32_t ic_val1_t = 0;
         uint32_t ic_val2_t = 0;
 
-        if (Is_First_Captured_CH1 == 0)
+        if (Is_First_Captured_Throttle == 0)
         {
             ic_val1_t = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-            Is_First_Captured_CH1 = 1;
+            Is_First_Captured_Throttle= 1;
 
             __HAL_TIM_SET_CAPTUREPOLARITY(htim,
                                           TIM_CHANNEL_1,
@@ -1148,7 +1149,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
             throttle_us = Differenza_CH1;
             new_rc_throttle = 1;
 
-            Is_First_Captured_CH1 = 0;
+            Is_First_Captured_Throttle = 0;
 
             __HAL_TIM_SET_CAPTUREPOLARITY(htim,
                                           TIM_CHANNEL_1,
