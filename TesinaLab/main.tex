@@ -1,0 +1,494 @@
+\documentclass[11pt]{report}
+\usepackage{titlesec}
+\titleformat{\chapter}
+  {\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+\usepackage[margin=1.2in]{geometry}
+\usepackage[toc,page]{appendix}
+\usepackage{graphicx}
+\usepackage{lipsum}
+\usepackage{caption}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{verbatim}
+\usepackage{colorprofiles}
+\usepackage{listings}   %<- per inserire il codice
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{custom_green}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{custom_blue}{rgb}{  0.05, 0.05, 0.97}
+\definecolor{custom_brown}{rgb}{ 0.69, 0.38, 0.10}
+\definecolor{custom_purple}{rgb}{0.58, 0.00, 0.82}
+\definecolor{custom_orange}{rgb}{0.94, 0.59, 0.09}
+
+\lstdefinestyle{MATLABstyle}{   
+    commentstyle=\color{custom_green},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstdefinelanguage{Cpp}{
+      language=C++,
+      backgroundcolor=\color{white},  
+      basicstyle=\footnotesize \ttfamily \color{black} \bfseries,   
+      breakatwhitespace=false,       
+      breaklines=true,               
+      captionpos=b,                   
+      commentstyle=\color{custom_green},   
+      deletekeywords={...},          
+      escapeinside={\%*}{*)},
+      keywordstyle=\color{custom_purple},
+      identifierstyle=\color{blue},
+      stringstyle=\color{blue},      
+      numbers=left,                 
+      numbersep=5pt,                  
+      numberstyle=\tiny\color{black}, 
+      rulecolor=\color{black},        
+      showspaces=false,               
+      showstringspaces=false,        
+      showtabs=false,                
+      stepnumber=1,                   
+      tabsize=5,                     
+      title=\lstname,                 
+    }
+
+\lstdefinelanguage{Python}{
+    keywords={from, import, def, return, as, in, len, if, elif, else, for, while},
+    breakatwhitespace=false,       
+    breaklines=true,   
+    morecomment=[l]{\#},
+    morestring=[b]",
+    commentstyle=\color{red},
+    keywordstyle=\color{custom_purple},
+    numberstyle=\tiny\color{black},
+    stringstyle=\color{custom_green},
+    basicstyle=\ttfamily\footnotesize,
+    captionpos=b,
+    showstringspaces=false,        
+    showtabs=false,                
+    numbers=left,                 
+    numbersep=5pt,                  
+    numberstyle=\tiny\color{black}, 
+    rulecolor=\color{black},                      
+    tabsize=5,                     
+    title=\lstname,    
+}
+
+\lstdefinelanguage{MATLABc}{
+    language=MATLAB,
+    backgroundcolor=\color{white},  
+    basicstyle=\footnotesize \ttfamily \color{black} \bfseries,   
+    breakatwhitespace=false,       
+    breaklines=true,               
+    captionpos=b,
+    morestring=[b]",
+    commentstyle=\color{custom_green},   
+    keywordstyle=\color{custom_blue},
+    morekeywords={clearvars},
+    deletekeywords={fprintf},
+    identifierstyle=\color{black},
+    stringstyle=\color{custom_purple},      
+    numbers=left,                 
+    numbersep=5pt,                  
+    numberstyle=\tiny\color{black}, 
+    rulecolor=\color{black},        
+    showspaces=false,               
+    showstringspaces=false,        
+    showtabs=false,                
+    stepnumber=1,                   
+    tabsize=5,                     
+    title=\lstname,                 
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\begin{document}
+\captionsetup[figure]{margin=1.5cm,font=small,labelfont={bf},name={Figure},labelsep=colon,textfont={it}}
+\captionsetup[table]{margin=1.5cm,font=small,labelfont={bf},name={Table},labelsep=colon,textfont={it}}
+
+
+\begin{titlepage}
+\begin{center}
+    {\large \scshape Università Politecnica delle Marche}\\[0.1cm]
+    {\large \scshape Ingegneria Informatica e dell'Automazione}\\[0.8cm] 
+    \vspace*{0.4cm} 
+    {\huge \bfseries Controllo di trazione e sterzata di un veicolo in scala 1:10 mediante radiocomando \par}
+    \vspace*{0.8cm}
+
+    \includegraphics[width=4.5cm]{images/logoUnivpm}\\[0.8cm]
+
+    {\large Corso di}\\[0.1cm]
+    {\large \scshape Laboratorio di Automazione}\\[0.1cm]
+    Anno accademico 2025-2026\\[0.8cm] 
+
+    \begin{minipage}[t]{0.45\textwidth}
+        \begin{flushleft}
+            \Large \textbf{Studenti:}\\
+            Tarek Naja\\
+            Marco Sambughi\\
+            Sara Vaccaro
+        \end{flushleft}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.45\textwidth}
+        \begin{flushright}
+            \Large \textbf{Professore:}\\
+            Andrea Bonci\\[0.6cm]
+            \textbf{Dottorando:}\\
+            Alessandro Di Biase
+        \end{flushright}
+    \end{minipage}
+
+    \vfill 
+
+    \includegraphics[width=2cm]{images/dii_new.png}\\[0.2cm]
+    \small Dipartimento di Ingegneria dell'Informazione
+
+\end{center}
+\end{titlepage}
+\pagenumbering{arabic}
+\tableofcontents
+\addcontentsline{toc}{chapter}{Introduzione}
+\newpage
+
+\pagestyle{plain}
+
+\section*{Introduzione}
+Spiegazione dettagliata del task assegnato al gruppo (cosa avete fatto e su quale sistema).\\
+Se per lo svolgimento del task è stato necessario interagire con altri gruppi che hanno lavorato sullo stesso sistema presentare anche brevemente i task svolti dagli altri gruppi e spiegare la loro interconnessione.
+Se si è invece optato per far confluire il lavoro di più gruppi in un'unica relazione, va spiegato qual era il task iniziale dei singoli gruppi e poi come è avvenuta l'integrazione. \\
+In sintesi, l'introduzione deve permettere al lettore di capire subito su cosa avete lavorato.
+Al termine dell'introduzione inserite anche una breve descrizione per capitoli del contenuto della restante parte della relazione (es Nel Capitolo \ref{Hardware} viene descritto...). \\
+\newline
+Nel seguito la struttura in capitoli di massima per ogni relazione, da adattare qualora necessario. \\
+\textcolor{red}{NOTA: La relazione va pensata e scritta nell'ottica di dare a chi verrà dopo di voi un documento utile per capire a che punto è arrivata l'attività svolta dal vostro gruppo e per metterli in condizione di portare avanti il vostro lavoro. Di conseguenza dovete essere chiari e diretti, riportando solo le informazioni necessarie e evidenziando in modo critico cosa effettivamente funziona correttamente e cosa va migliorato}
+
+\newpage
+\chapter{Descrizione del sistema}
+La seguente relazione si basa sull'analisi dell'architettura di comunicazione via radio tra radiocomando e microcontrollore. Nel dettaglio, il trasmettitore impiega onde elettromagnetiche per l'invio dei pacchetti dati, sfruttando la modulazione di un'onda portante che codifica le informazioni variando parametri dell'onda stessa, quali l'ampiezza, la frequenza o la fase. L'espressione matematica dell'onda portante è definita dalla seguente funzione:
+
+\begin{equation}
+    s(t) = A \cos(2\pi f_c t + \phi)
+\end{equation}
+
+\noindent dove:
+\begin{itemize}
+    \item $A$: ampiezza dell'onda;
+    \item $f_c$: frequenza portante;
+    \item $t$: tempo;
+    \item $\phi$: fase iniziale.
+\end{itemize}
+
+\noindent
+L'azione dell'utente sui comandi del radiocomando genera una sequenza di bit (segnale elettrico), che l'antenna del trasmettitore provvede a convertire in onda elettromagnetica, irradiandola nello spazio a una determinata frequenza $f$. Il modulo ricevitore, essendo sintonizzato sulla stessa frequenza, intercetta il segnale e lo riconverte nel formato elettrico. Questi dati vengono poi inoltrati al microcontrollore, il quale ha il compito di interpretare le istruzioni e comandare l'hardware per eseguire determinate azioni. 
+\noindent
+Per la traduzione pratica dei comandi, il microcontrollore impiega la modulazione a larghezza di impulso (PWM). Il parametro fondamentale per questa tecnica è il \textit{Duty Cycle}, calcolato come segue:
+
+\begin{equation}
+    \text{Duty Cycle (\%)} = \frac{T_{on}}{T_{on} + T_{off}} \times 100
+\end{equation}
+
+\noindent dove $T_{on}$ è la durata dell'impulso ``alto'', $T_{off}$ la durata dell'impulso ``basso'' e la loro somma definisce il periodo totale dell'onda.
+\noindent
+Per quanto riguarda l'analisi della traiettoria del veicolo, si adotta il modello cinematico della bicicletta, approssimando la dinamica del veicolo a quattro ruote riducendola a due. Le equazioni cinematiche descrivono il moto attraverso le variabili di posizione $(x,y)$ e l'angolo di orientamento della vettura. Considerando costante la velocità $v$ del veicolo, l'assenza di slittamento e che l'intera rotazione del veicolo avvenga attorno al CIR (Centro Istantaneo di Rotazione), il modello viene descritto dal seguente sistema:
+
+\begin{equation}
+    \begin{cases}
+        \dot{x}(t) = v \cos(\theta) \\
+        \dot{y}(t) = v \sin(\theta) \\
+        \dot{\theta}(t) = \frac{v}{L} \tan(\delta)
+    \end{cases}
+\end{equation}
+
+\noindent I parametri fondamentali del modello sono:
+\begin{itemize}
+    \item $L$: distanza tra asse anteriore e posteriore (passo);
+    \item $\delta$: angolo di sterzata (ruote anteriori);
+    \item $\theta$: angolo di imbardata del veicolo;
+    \item $v$: velocità della macchina;
+    \item $\dot{x}, \dot{y}$: velocità nei due assi (derivate della posizione rispetto al tempo).
+\end{itemize}
+\noindent
+Nel caso in cui si considerasse lo slittamento si passerebbe ad un modello dinamico e la velocità di rotazione non dipenderebbe più solo dalla geometria. Il modello descritto quindi è una semplificazione del modello reale, ma risulta uno strumento efficace per comprendere la cinematica di base del veicolo e la traiettoria in funzione dell'angolo di sterzo, sfruttando unicamente due assi.
+\section{Controllo veicolo}
+Nelle prossime sezioni verranno analizzate, dal punto di vista teorico, le tecniche di controllo
+utilizzate per la gestione degli attuatori presenti sul veicolo.
+
+\subsection{Controllo della trazione}
+Per il controllo della trazione, ovvero la regolazione della velocità longitudinale del veicolo, si è optato per un sistema di controllo in retroazione (\textit{closed-loop}). Tale architettura risulta fondamentale non solo per garantire il preciso inseguimento della velocità di riferimento, ma anche per compensare i disturbi esterni non prevedibili, quali le variazioni di attrito del terreno, le pendenze o le cadute di tensione della batteria durante l'erogazione di corrente.
+\noindent Il sistema misura costantemente la velocità reale del veicolo e la confronta con la velocità di riferimento, generando un segnale di errore $e(t)$ da minimizzare:
+
+\begin{equation}
+    e(t) = v_{\text{target}} - v_{\text{reale}}
+\end{equation}
+\noindent Il feedback di velocità è fornito da un encoder incrementale calettato sull'albero motore: il sensore genera una serie di impulsi che vengono conteggiati dal microcontrollore all'interno di un periodo di campionamento a tempo fisso. Dalla derivata discreta di questi conteggi si ricava l'effettiva velocità di rotazione del rotore.
+\noindent Per minimizzare l'errore $e(t)$ e calcolare lo sforzo di controllo da applicare al motore, tradotto poi nel \textit{Duty Cycle} del segnale PWM, viene impiegato un controllore PID (Proporzionale-Integrale-Derivativo). La legge di controllo nel dominio del tempo continuo è descritta dalla seguente equazione:
+
+\begin{equation}
+    u(t) = K_p \cdot e(t) + K_i \int e(t) \, dt + K_d \frac{de(t)}{dt}
+\end{equation}
+
+\noindent dove $u(t)$ rappresenta l'azione di comando generata dal controllore, mentre $K_p$, $K_i$ e $K_d$ sono rispettivamente le costanti di guadagno dell'azione proporzionale, integrale e derivativa. Nello specifico:
+
+\begin{itemize}
+    \item \textbf{Guadagno proporzionale ($K_p$):} fornisce un'uscita di controllo direttamente proporzionale all'errore istantaneo. Aumentare il guadagno $K_p$ rende il sistema più reattivo e riduce il tempo di salita. Tuttavia, da sola non è sufficiente a garantire il perfetto inseguimento del riferimento: un'azione puramente proporzionale lascia un errore a regime e, se eccessiva, induce forti oscillazioni e instabilità.
+    
+    \item \textbf{Guadagno integrale ($K_i$):} somma l'errore nel tempo, tenendo conto della ``storia'' del sistema. Il suo scopo fondamentale è annullare completamente l'errore a regime. Tuttavia, un accumulo prolungato di questo termine, ad esempio durante la fase di avvio o nel caso in cui le ruote slittino senza far muovere il veicolo, porta a un eccessivo incremento dell'azione di controllo. Questo si traduce in partenze improvvise o risposte sproporzionate non appena il target cambia, problematica che nel software è stata mitigata azzerando il termine integrale in specifiche condizioni di sicurezza.
+    
+    \item \textbf{Guadagno derivativo ($K_d$):} reagisce alla velocità di variazione dell'errore, anticipandone l'andamento futuro. Funge essenzialmente da ``smorzatore'', con lo scopo di contrastare le eventuali oscillazioni introdotte dalle componenti precedenti. Tuttavia, per il controllo longitudinale di veicoli di questa scala, l'azione derivativa risulta spesso superflua o persino controproducente, in quanto tende ad amplificare matematicamente le normali micro-vibrazioni meccaniche o i piccoli scatti letti dall'encoder. Per questo motivo, è prassi comune nella robotica mobile di base porre direttamente $K_d = 0$, semplificando l'architettura a un più robusto e stabile controllore PI.
+\end{itemize}
+
+\noindent La determinazione dei parametri ottimali ($K_p$, $K_i$, $K_d$) prende il nome di calibrazione o \textit{tuning}.
+\noindent Per la dinamica del veicolo in esame, tale procedura è stata condotta mediante calibrazione empirica in laboratorio. Partendo da valori conservativi e analizzando visivamente e tramite telemetria la risposta del motore alle variazioni di velocità richieste dal radiocomando, i guadagni sono stati ottimizzati per garantire l'inseguimento del target senza innescare instabilità.
+
+\subsection{Controllo dello sterzo}
+La gestione direzionale del veicolo è affidata al sistema di sterzo delle ruote anteriori e ai segnali inviati dal radiocomando. L'attuazione meccanica è realizzata mediante un servomotore, un tipo particolare di motore che, agendo sui braccetti dello sterzo, è in grado di ruotare in una specifica posizione e mantenerla. Inoltre, in questo prototipo è stato implementato un controllo a ciclo chiuso per garantire la massima precisione nell'inseguimento della traiettoria e compensare i disturbi dinamici come gli attriti del terreno. Di conseguenza, il controllo prevede l'utilizzo di un regolatore PID, implementato all'interno del microcontrollore STM32. 
+\noindent Il controllore riceve in ingresso l'errore $e(t)$, definito come la differenza tra l'angolo di sterzo di riferimento richiesto $\delta_{\text{ref}}(t)$, letto dal radiocomando, e l'angolo reale misurato dai sensori di bordo $\delta_{\text{reale}}(t)$:
+
+\begin{equation}
+    e(t) = \delta_{\text{ref}}(t) - \delta_{\text{reale}}(t)
+\end{equation}
+
+\noindent L'azione correttiva calcolata dall'algoritmo PID viene tradotta in un segnale di pilotaggio PWM inviato al servomotore. Per questa tipologia di attuatori, il controllo della posizione non dipende dal \textit{Duty Cycle} percentuale classico, bensì dalla larghezza assoluta dell'impulso positivo $T_{on}$ all'interno di un periodo fisso di 20 ms, corrispondente ad una frequenza di 50 Hz.
+
+\newpage
+\chapter{Hardware}
+\label{Hardware}
+Nel presente capitolo viene analizzata in dettaglio l'architettura hardware del prototipo, descrivendo le specifiche tecniche e il ruolo funzionale di ciascun componente. Verranno presi in analisi i seguenti elementi costitutivi:
+
+\begin{itemize}
+    \item Telaio e meccanica di supporto;
+    \item Microcontrollore Nucleo-144 STM32H755zi-q;
+    \item Motore DC Reely 550er;
+    \item Driver Motore Cytron MD10C R3;
+    \item Encoder incrementale CUI Devices AMT102;
+    \item Servomotore Miuzei MS24;
+    \item Sistema di Alimentazione e Power Distribution Board (PDB);
+    \item Batteria ai polimeri di litio (LiPo) 2S (2 celle);
+    \item Unità di Inerzia Magneto-Inerziale (IMU) Bosch BNO055;
+    \item Radiocomando e Ricevitore Microzone.
+\end{itemize}
+\section{Telaio e meccaniche di supporto}
+La struttura portante e la cinematica del veicolo sono basate su uno chassis in scala 1:10 derivato dal settore del modellismo dinamico. Per rendere lo chassis idoneo agli scopi del progetto, la struttura originale è stata sottoposta a una serie di interventi di personalizzazione. In particolare, è stata progettata e installata una piastra di supporto superiore per incrementare la superficie utile a bordo, permettendo l'alloggiamento di tutta la componentistica elettronica.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/telaio} 
+    \captionsetup{labelsep=none}
+    \caption{}
+    \label{fig:telaio}
+\end{figure}
+\section{Nucleo-144 STM32H755zi-q}
+L'unità di elaborazione centrale e di controllo del veicolo è costituita dalla scheda di sviluppo Nucleo-144 dotata del microcontrollore ad altissime prestazioni STM32H755ZIT6Q di STMicroelectronics. L'elemento distintivo di questo dispositivo è la sua architettura hardware \textit{dual-core} eterogenea, che mette a disposizione due processori indipendenti a bordo dello stesso chip:
+\begin{itemize}
+    \item \textbf{Core ARM Cortex-M7 (32-bit):} operante a una frequenza massima di 480 MHz.
+    \item \textbf{Core ARM Cortex-M4 (32-bit):} operante a una frequenza massima di 240 MHz.
+\end{itemize}
+\noindent L'interazione e lo scambio di dati ad alta velocità tra i due core avvengono in modo sincrono tramite un'interfaccia di comunicazione interna basata su memoria condivisa e semafori hardware. La scheda offre un ricco set di periferiche hardware dedicate che risultano fondamentali per gli obiettivi del progetto: i timer avanzati per la generazione dei segnali PWM di trazione e sterzo, i timer configurati in modalità \textit{Encoder Interface} per la lettura diretta in quadratura dell'encoder AMT102, e i bus di comunicazione analogici e digitali, come I$^2$C o UART, per l'interfacciamento con i sensori di bordo.
+\noindent La configurazione delle periferiche e lo sviluppo del codice in linguaggio C sono stati interamente gestiti tramite l'ecosistema software ufficiale di STMicroelectronics, utilizzando lo strumento di generazione grafica STM32CubeMX per l'inizializzazione dell'hardware e l'ambiente di sviluppo integrato STM32CubeIDE per la scrittura, compilazione e il \textit{debug} del \textit{firmware}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/SchedaSTM.png} 
+    \captionsetup{labelsep=none}
+    \caption{}    \label{fig:telaio}
+\end{figure}
+
+\section{Motore DC Reely 550er}
+La trazione del veicolo viene garantita da un motore collegato alla trasmissione dello chassis.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/Motore} 
+    \captionsetup{labelsep=none}
+    \caption{}    
+    \label{fig:telaio}
+\end{figure}
+\noindent In particolare, viene utilizzato un motore  DC a collettore con le seguenti caratteristiche:
+\begin{table}[H]
+    \centering
+    \label{tab:specifiche_motore}
+    \vspace{0.2cm} 
+    \renewcommand{\arraystretch}{1.3} 
+    \begin{tabular}{@{} l c @{}}
+        \toprule
+        \textbf{Parametro} & \textbf{Valore} \\
+        \midrule
+        Tensione nominale & 4.8 -- 12 VDC \\
+        Velocità di rotazione & 1000 -- 18000 RPM \\
+        Coppia & 100 -- 900 g$\cdot$cm \\
+        Diametro albero & 3.175 mm \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Driver Motore Cytron MD10C R3}
+Il motore viene controllato tramite modulazione PWM attraverso il driver MD10C-R3.
+In particolare, il controllo del motore attraverso questo driver avviene tramite due segnali: 
+ \begin{itemize}
+\item \textbf{DIR:} controllo del verso di rotazione (Segnale digitale alto/basso) 
+ \item \textbf{PWM:} controllo della velocità di rotazione (segnale PWM)
+ \end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/Driver} 
+    \captionsetup{labelsep=none}
+    \caption{}
+    \label{fig:telaio}
+\end{figure}
+
+\section{Encoder incrementale CUI Devices AMT102}
+Inoltre, per effettuare il controllo del motore in velocità è necessario avere un feedback sulla velocità del motore stesso: ciò è stato reso possibile montando un encoder sull’asse posteriore del motore. In particolare, è stato utilizzato un encoder rotativo incrementale modello AMT102.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/Encoder} 
+    \captionsetup{labelsep=none}
+    \caption{}
+    \label{fig:telaio}
+\end{figure}
+
+\section{Servomotore Miuzei MS24}
+Per operare il meccanismo di sterzo del veicolo è stato impiegato un servo motore: questo
+dispositivo riesce a regolare il movimento angolare in modo molto preciso e proprio per
+questo viene comunemente utilizzato in diverse apparecchiature elettroniche e applicazioni
+che richiedono un controllo di posizione accurato.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/Servo} 
+    \captionsetup{labelsep=none}
+    \caption{}
+    \label{fig:telaio}
+\end{figure}
+
+\section{Schema dei collegamenti}
+Inserire uno schema dei collegamenti analogo a quello in Figura \ref{fig:schema}. Si suggerisce per lo scopo di usare il software "draw.io". Nello schema riportare tutti i collegamenti tra i componenti, specificando quale pin di un componente1 si collega con quale pin di un componente2 (per la maggior parte dei collegamenti dovete cioè avere una linea con 2 label). \\
+Inserire anche una descrizione testuale dello schema.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/Schema.JPG}
+\caption{Schema dei collegamenti}
+\label{fig:schema}
+\end{figure}
+
+
+\chapter{Software}
+Nell'introduzione al capitolo specificate anche la versione dell'STM32CubeIDE e dell'STM32CubeMX che avete usato (se avete cambiato versione nel corso del progetto mettete l'ultima, quella su cui è sviluppato il codice che consegnate).
+
+\section{Diagramma di flusso}
+Inserire un diagramma di flusso analogo a quello in Figura \ref{fig:diagramma} che spiega il funzionamento generale del codice sviluppato. Inserire anche una descrizione testuale del funzionamento.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/diagramma.JPG}
+\caption{Diagramma di flusso del codice sviluppato}
+\label{fig:diagramma}
+\end{figure}
+
+\section{Gestione singoli componenti}
+Dedicare un pagagrafo ad ogni componente in cui viene spiegato il codice che lo gestisce. Inserite prima una descrizione generale di come si gestisce un componente di quel tipo (aiutandovi con schemi o altro). Poi le configurazioni che sono state fatte sul .ioc per poterlo utilizzare (quale periferiche sono state abilitate, come sono state configurate.. mettete degli screen del .ioc). Infine inserite e spiegate le parti di codice che lo gestiscono.\\
+\newline
+\textcolor{red}{NOTA per il codice}: per rendere il codice modulare e riutilizzabile è buona prassi non caricare troppo il main ma creare una libreria per ogni componente. Quindi il componente1 avrà un header file "componente1.h" e un source file "componente1.c", nel source file sono implementate le funzioni che gestiscono il componente, nell'header file ci sono i prototipi di tali funzioni in modo che esse possano essere usate nel main includendolo.\\
+\newline
+\textcolor{red}{NOTA per il codice}: non inserire mai nel codice dei parametri numerici senza contesto ma renderli delle costanti definite (usando la direttiva \%define). Se sono delle costanti relative ad uno specifico componente vanno inserite nel relativo header file.\\
+\newline
+\textcolor{red}{NOTA per il codice}: per inserire il codice, anziché utilizzare screenshot utilizzate i seguenti comandi.\\
+Per codice scritto in latex (con linguaggio Python):
+\begin{lstlisting}[language=Python, caption="Codice in Python"]
+import numpy as np
+    
+def incmatrix(genl1,genl2):
+    m = len(genl1) # The length of the first array
+    n = len(genl2) # The length of the second array
+    sum = 0
+    
+    # Compute 
+    for i in range(0,n):
+        for j in range(0, m):
+            sum += genl1[n]*genl2[m]
+
+    # Print
+    print("The sum is %2d" %(sum))   
+    
+    return M
+\end{lstlisting}
+Per codice richiamato da file (con linguaggio C):
+
+\lstinputlisting[language=Cpp, firstline=4, lastline=8, caption="Codice in C"]{codefiles/example_code.cpp}
+
+Funziona anche per codice MATLAB:
+\begin{lstlisting}[language=MATLABc, caption="Codice in MATLAB"]
+%% PREPARE WORKSPACE
+close all
+clearvars
+clc
+
+%% OPERATIONS
+sayhello;
+
+%% FUNCTIONS
+function sayhello
+    fprintf("Hello world!");
+end
+
+\end{lstlisting}
+
+
+\subsection{Gestione componente1}
+
+\subsection{Gestione componente2}
+
+\section{Funzionamento complessivo}
+Dopo aver spiegato il codice che gestisce i singoli componenti, inserire e commentare le porzioni di codice relative al funzionamento complessivo del programma.
+
+\chapter{Test e risultati}
+Dedicate un capitolo a tutti i test effettuati con relativi risultati, includete sia i test finali relativi al funzionamento complessivo, sia i test delle singole parti (se significativi). \\
+Descrivete in dettaglio le condizioni in cui sono stati svolti i test in modo che siano ripetibili. Durante i test fate dei video e acquisite i dati (es usando la funzione di log di Putty), per i test più rilevanti è opportuno consegnare anche questo materiale per documentare i test effettuati. Nella relazione riportate i risultati con dei grafici come quello in Figura \ref{fig:grafico} (inserite sempre nei grafici le label sugli assi con grandezza e relativa unità di misura). Commentate in modo critico i risultati ottenuti, evidenziando sia quelli positivi sia quelli negativi. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/grafico.JPG}
+\caption{Esempio di grafico}
+\label{fig:grafico}
+\end{figure}
+\section{Test1}
+Per ogni test riportate: cosa state testando, in che condizioni si è svolto il test, riferimenti a video/file di log che consegnate insieme a relazione e codice, grafici dei risultati, commento dei risultati.
+
+\section{Test2}
+
+\newpage
+\addcontentsline{toc}{chapter}{Conclusioni e sviluppi futuri}
+\section*{Conclusioni e sviluppi futuri}
+Riassumere brevemente il lavoro svolto rispetto al task assegnato, evidenziando quali risultati sono stati raggiunti e quali no. Se ci sono aspetti del task non completati spiegare quali sono stati i problemi riscontrati in merito.\\
+Inserire considerazioni personali su possibili sviluppi futuri dell'attività svolta (idee per migliorarla che non avete avuto modo di sperimentare, aspetti che suggerite di approfondire, problemi da risolvere..).
+
+\addcontentsline{toc}{chapter}{Appendici}
+\appendix
+\chapter{Appendice1}
+Se necessario ricorrete alle appendici per spiegare le parti "di contorno" dell'attività svolta e/o ciò che non riuscite ad inserire nello schema generale dei capitoli della relazione (es acquisizione dei dati con Matlab).
+
+
+\bibliographystyle{ieeetr}
+\bibliography{bibl} 
+\end{document}

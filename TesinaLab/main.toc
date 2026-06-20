@@ -1,0 +1,27 @@
+\babel@toc {italian}{}\relax 
+\babel@toc {italian}{}\relax 
+\contentsline {chapter}{Introduzione}{1}{}%
+\contentsline {chapter}{\numberline {1}Descrizione del sistema}{3}{}%
+\contentsline {section}{\numberline {1.1}Controllo veicolo}{4}{}%
+\contentsline {subsection}{\numberline {1.1.1}Controllo della trazione}{4}{}%
+\contentsline {subsection}{\numberline {1.1.2}Controllo dello sterzo}{5}{}%
+\contentsline {chapter}{\numberline {2}Hardware}{7}{}%
+\contentsline {section}{\numberline {2.1}Telaio e meccaniche di supporto}{7}{}%
+\contentsline {section}{\numberline {2.2}Nucleo-144 STM32H755zi-q}{8}{}%
+\contentsline {section}{\numberline {2.3}Motore DC Reely 550er}{8}{}%
+\contentsline {section}{\numberline {2.4}Driver Motore Cytron MD10C R3}{9}{}%
+\contentsline {section}{\numberline {2.5}Encoder incrementale CUI Devices AMT102}{10}{}%
+\contentsline {section}{\numberline {2.6}Servomotore Miuzei MS24}{10}{}%
+\contentsline {section}{\numberline {2.7}Schema dei collegamenti}{11}{}%
+\contentsline {chapter}{\numberline {3}Software}{13}{}%
+\contentsline {section}{\numberline {3.1}Diagramma di flusso}{13}{}%
+\contentsline {section}{\numberline {3.2}Gestione singoli componenti}{14}{}%
+\contentsline {subsection}{\numberline {3.2.1}Gestione componente1}{15}{}%
+\contentsline {subsection}{\numberline {3.2.2}Gestione componente2}{15}{}%
+\contentsline {section}{\numberline {3.3}Funzionamento complessivo}{15}{}%
+\contentsline {chapter}{\numberline {4}Test e risultati}{16}{}%
+\contentsline {section}{\numberline {4.1}Test1}{16}{}%
+\contentsline {section}{\numberline {4.2}Test2}{16}{}%
+\contentsline {chapter}{Conclusioni e sviluppi futuri}{17}{}%
+\contentsline {chapter}{Appendici}{17}{}%
+\contentsline {chapter}{\numberline {A}Appendice1}{18}{}%
