@@ -75,72 +75,11 @@ typedef struct VehicleData {
 #define HSEM_ID_0 (0U) /* HW semaphore 0*/
 #endif
 #endif /* DUAL_CORE_BOOT_SYNC_SEQUENCE */macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
 /* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PD */
-
-/* Private
-/* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -168,6 +107,12 @@ serialData data;
 vehicleData vehicleState;
 volatile uint8_t new_rc_steering = 0;
 volatile uint8_t new_rc_throttle = 0;
+
+float speed_ref_rpm = 0;
+float speed_meas_rpm = 0;
+int32_t old_counts = 0;
+float pwm_pid = 0;
+
 //PID
 PID pid_traction, pid_steering;
 double u_trazione = 0;
@@ -214,6 +159,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
+
 /* USER CODE BEGIN Boot_Mode_Sequence_0 */
 #if defined(DUAL_CORE_BOOT_SYNC_SEQUENCE)
   int32_t timeout;
@@ -231,6 +177,7 @@ int main(void)
   }
 #endif /* DUAL_CORE_BOOT_SYNC_SEQUENCE */
 /* USER CODE END Boot_Mode_Sequence_1 */
+
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -242,6 +189,7 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
+
 /* USER CODE BEGIN Boot_Mode_Sequence_2 */
 #if defined(DUAL_CORE_BOOT_SYNC_SEQUENCE)
 /* When system initialization is finished, Cortex-M7 will release Cortex-M4 by means of
@@ -276,21 +224,19 @@ Error_Handler();
   MX_TIM4_Init();
   MX_USART3_UART_Init();
   MX_I2C1_Init();
+
   /* USER CODE BEGIN 2 */
-  // 1. ACCENDIAMO L'INTERRUTTORE GENERALE DELLA PORTA D (FONDAMENTALE!)
+  // ACCENDIAMO L'INTERRUTTORE GENERALE DELLA PORTA D
    __HAL_RCC_GPIOD_CLK_ENABLE();
 
 
-   // 2. CONFIGURIAMO IL PIN PD5 A MANO (Bypassiamo CubeMX)
+   //CONFIGURIAMO IL PIN PD5 A MANO (Bypassiamo CubeMX)
    GPIO_InitTypeDef GPIO_InitStruct = {0};
    GPIO_InitStruct.Pin = GPIO_PIN_5;
-   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; // Push-Pull (Muscoli attivi)
+   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; // Push-Pull
    GPIO_InitStruct.Pull = GPIO_NOPULL;
    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-   // (Assicurati di avere anche l'HAL_TIM_PWM_Start qui per il rosso)
-
 
   //PWM Servo
   	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -304,6 +250,7 @@ Error_Handler();
 
   	//ENCODER TIMER
   	HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
+
   	//10ms TIMER
   	HAL_TIM_Base_Start_IT(&htim6);
 
@@ -320,17 +267,13 @@ Error_Handler();
   	MIN_U_STEERING);
   	tune_PID(&pid_steering, KP_STEERING, KI_STEERING, 0);
 
-  	// IMU BNO055 config
+  	// IMU BNO055 config (automation drive)
   	//HAL_I2C_IsDeviceReady(&hi2c1, BNO055_I2C_ADDR << 1, 5, 1000);
   	//bno055_assignI2C(&hi2c1);
   	//bno055_setup();
   	//bno055_setOperationModeNDOF();
 
   	servo_motor(0);
-
-  	printf("Initialization Completed!\r\n");
-
-
 
   	//Test without Raspberry
   	data.enable = 0;
@@ -350,13 +293,11 @@ Error_Handler();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-
   	uint32_t MAX_SPEED = 20;
 
   	float steering_angle = 0.0f;
   	float steering_filtered = 1500.0f;
   	float throttle_filtered = 1500.0f;
-
 
   	while (1)
   	{
@@ -368,32 +309,26 @@ Error_Handler();
   		        throttle_filtered * 0.8f +
   		        ((float)throttle_us * 0.2f);
 
-  		    uint32_t duty_RC = 0;
-  		    uint8_t dir_RC = 0;
-
   		    if(throttle_filtered > 1560)
   		    {
-  		        dir_RC = 1;
-  		        duty_RC = ((throttle_filtered - 1560) * MAX_SPEED) / (2000 - 1560);
+  		        vehicleState.motor_direction_ref = 1;
+
+  		        speed_ref_rpm =
+  		            ((throttle_filtered - 1560.0f) * 200.0f)
+  		            / (2000.0f - 1560.0f);
   		    }
   		    else if(throttle_filtered < 1440)
   		    {
-  		        dir_RC = 0;
-  		        duty_RC = ((1440 - throttle_filtered) * MAX_SPEED) / (1440 - 1000);
+  		        vehicleState.motor_direction_ref = 0;
+
+  		        speed_ref_rpm =
+  		            ((1440.0f - throttle_filtered) * 200.0f)
+  		            / (1440.0f - 1000.0f);
   		    }
   		    else
   		    {
-  		        duty_RC = 0;
-  		        dir_RC = 0;
+  		        speed_ref_rpm = 0;
   		    }
-
-  		    if(duty_RC > 0 && duty_RC < 20)
-  		        duty_RC = 20;
-
-  		    if(duty_RC > MAX_SPEED)
-  		        duty_RC = MAX_SPEED;
-
-  		    set_PWM_and_dir(duty_RC, dir_RC);
   		}
 
   		if(new_rc_steering)
@@ -421,94 +356,6 @@ Error_Handler();
 
     /* USER CODE BEGIN 3 */
 
-	      //Controllo generale: eseguiamo solo se la macchina è "accesa"
-	      /*if (data.enable == 1) {
-	          if (Flag_10ms == 1) { // Il timer scandisce il tempo (esegue ogni 10ms)
-	              Flag_10ms = 0;
-
-	              // =============================================================
-	              // 1. TRAZIONE (IL TEST ATTUALE)
-	              // =============================================================
-
-	              // Lettura velocità tramite Encoder
-	              vehicleState.ref_count = TIM4->ARR / 2;
-	              vehicleState.delta_count = vehicleState.counts - vehicleState.ref_count;
-
-	              vehicleState.delta_angle_deg = (vehicleState.delta_count * 360)
-	                      / ((double) (ENCODER_PPR * ENCODER_COUNTING_MODE * GEARBOX_RATIO));
-	              vehicleState.motor_speed_deg_sec = vehicleState.delta_angle_deg / ENCODER_SAMPLING_TIME;
-	              vehicleState.motor_speed_RPM = DegreeSec2RPM(vehicleState.motor_speed_deg_sec);
-
-	              // Calcolo velocità di riferimento
-	              vehicleState.motor_speed_ref_RPM = data.linear_speed_ref_m_s / RPM_2_m_s;
-	              vehicleState.motor_direction_ref = Ref2Direction(vehicleState.motor_speed_ref_RPM);
-
-	              // IL CERVELLO: Il PID calcola lo sforzo necessario
-	              u_trazione = PID_controller(&pid_traction,
-	                      fabs(vehicleState.motor_speed_RPM),
-	                      fabs(vehicleState.motor_speed_ref_RPM));
-
-	              // Convertiamo lo sforzo in Duty Cycle (0-100)
-	              uint32_t duty_finale = (uint32_t) Voltage2Duty(u_trazione);
-
-
-	              // LA CIMICE SUPREMA: Leggiamo anche il registro hardware!
-	                    //char debug_msg[120];
-	                   // int len = sprintf(debug_msg, "U_traz: %.2f | Duty: %lu | REGISTRO FISICO: %lu\r\n",
-	                     //                 (float)u_trazione,
-	                      //                duty_finale,
-	                        //              TIM3->CCR1); // <-- Questo è il numero che va davvero al filo!
-	                    //HAL_UART_Transmit(&huart3, (uint8_t*)debug_msg, len, 10);
-	              // L'ORDINE AL MOTORE: Inviamo la decisione ai pin (Rosso e Verde)
-	              set_PWM_and_dir(duty_finale, vehicleState.motor_direction_ref);
-
-
-	              // =============================================================
-	              // 2. STERZO E IMU (DA SCOMMENTARE E USARE IN FUTURO)
-	              // =============================================================
-
-	              // Get yawrate from IMU
-	              bno055_vector_t v = bno055_getVectorGyroscope();
-	              vehicleState.yaw_rate_deg_sec = v.z;
-	              vehicleState.yaw_rate_rad_sec = (vehicleState.yaw_rate_deg_sec * M_PI) / 180;
-
-	              if (data.curvature_radius_ref_m >= MAX_CURVATURE_RADIUS_FOR_STRAIGHT) {
-	                  vehicleState.yaw_rate_ref_rad_sec = 0;
-	                  u_sterzo = PID_controller(&pid_steering, vehicleState.yaw_rate_rad_sec, vehicleState.yaw_rate_ref_rad_sec);
-	                  servo_motor(-u_sterzo); // minus because yawrate and steering are opposite
-	              } else {
-	                  vehicleState.linear_speed_m_s = vehicleState.motor_speed_RPM * RPM_2_m_s;
-	                  vehicleState.yaw_rate_ref_rad_sec = vehicleState.linear_speed_m_s / data.curvature_radius_ref_m;
-
-	                  float yaw_rate_ref_rad_sec_abs = vehicleState.yaw_rate_ref_rad_sec;
-	                  float yaw_rate_rad_sec_abs = vehicleState.yaw_rate_rad_sec;
-	                  if (vehicleState.yaw_rate_ref_rad_sec < 0)
-	                      yaw_rate_ref_rad_sec_abs = -vehicleState.yaw_rate_ref_rad_sec;
-	                  if (vehicleState.yaw_rate_rad_sec < 0)
-	                      yaw_rate_rad_sec_abs = -vehicleState.yaw_rate_rad_sec;
-
-	                  u_sterzo = PID_controller(&pid_steering, yaw_rate_rad_sec_abs, yaw_rate_ref_rad_sec_abs);
-
-	                  // minus because yawrate and steering are opposite
-	                  if (data.curvature_radius_ref_m >= 0 && u_sterzo > 0)
-	                      u_sterzo *= -1.0;
-	                  if (data.curvature_radius_ref_m < 0 && u_sterzo < 0)
-	                      u_sterzo *= -1.0;
-
-	                  servo_motor((int) u_sterzo);
-	              }
-
-	              // =============================================================
-
-	          }
-	      } else {
-	          // Se l'utente spegne la macchina (data.enable = 0), blocca tutto per sicurezza.
-	          set_PWM_and_dir(0, vehicleState.motor_direction_ref);
-	          servo_motor(0);
-	      }*/
-
-
-
   /* USER CODE END 3 */
 }
 
@@ -516,6 +363,7 @@ Error_Handler();
   * @brief System Clock Configuration
   * @retval None
   */
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -1038,6 +886,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim6) {
 		Flag_10ms = 1;
 
+		 // SAFETY RADIO (PRIMA DI TUTTO)
+		        if (data.enable == 0)
+		        {
+		            set_PWM_and_dir(0, 0);
+		            return;
+		        }
+
 		//Encoder
 		vehicleState.counts = TIM4->CNT;
 		TIM4->CNT = TIM4->ARR / 2;
@@ -1054,13 +909,45 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		if (time_counter == 580) {
 			data.enable = 0;
 		}
-		/*
-		 if (time_counter == 3000) {
-		 data.enable = 0;
-		 }
-		 */
-
 	}
+	int32_t counts;
+
+	counts = TIM4->CNT;
+
+	TIM4->CNT = 0;
+
+	speed_meas_rpm =
+	    (counts * 60.0f * 100.0f)
+	    / (2048.0f);
+
+	float errore;
+
+	errore = speed_ref_rpm - speed_meas_rpm;
+
+	pwm_pid = PID_controller(&pid_traction,
+	                         speed_meas_rpm,
+	                         speed_ref_rpm);
+
+	if(speed_ref_rpm == 0)
+	{
+	    pwm_pid = 0;
+	}
+
+	//printf("%f,%f\r\n",
+	  //     speed_ref_rpm,
+	    //   speed_meas_rpm);
+
+	set_PWM_and_dir((uint32_t)pwm_pid,
+		                vehicleState.motor_direction_ref);
+
+	printf("ref=%.1f meas=%.1f pwm=%d dir=%d\r\n",
+	       speed_ref_rpm,
+	       speed_meas_rpm,
+	       (int)pwm_pid,
+	       vehicleState.motor_direction_ref);
+
+
+
 }
 
 //USART2 -> ST_Link UART for DEBUG with USB (e.g. PUTTY)
@@ -1081,9 +968,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-{  // =========================
-    // STERZO -> PA3 (TIM5 CH4)
-    // =========================
+{  // STERZO -> PA3 (TIM5 CH4)
     if (htim->Instance == TIM5 &&
         htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
     {
@@ -1119,9 +1004,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
         }
     }
 
-    // =========================
     // TRAZIONE -> PA0 (TIM5 CH1)
-    // =========================
     if (htim->Instance == TIM5 &&
         htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
     {

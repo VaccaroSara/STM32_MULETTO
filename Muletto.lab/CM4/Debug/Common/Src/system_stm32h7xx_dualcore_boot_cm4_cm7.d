@@ -1,5 +1,5 @@
 Common/Src/system_stm32h7xx_dualcore_boot_cm4_cm7.o: \
- /Users/sara/Desktop/3-ANNO/Lab\ Auto/STM32_MULETTO/Muletto.lab/Common/Src/system_stm32h7xx_dualcore_boot_cm4_cm7.c \
+ /Users/tareknaja/Desktop/Uni/Lab\ Auto/STM32_MULETTO/Muletto.lab/Common/Src/system_stm32h7xx_dualcore_boot_cm4_cm7.c \
  ../../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h \
  ../../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h755xx.h \
  ../../Drivers/CMSIS/Include/core_cm4.h \

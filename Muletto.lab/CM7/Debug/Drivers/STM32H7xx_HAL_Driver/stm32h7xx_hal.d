@@ -1,5 +1,5 @@
 Drivers/STM32H7xx_HAL_Driver/stm32h7xx_hal.o: \
- /Users/sara/Desktop/3-ANNO/Lab\ Auto/STM32_MULETTO/Muletto.lab/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c \
+ /Users/tareknaja/Desktop/Uni/Lab\ Auto/STM32_MULETTO/Muletto.lab/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c \
  ../../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h \
  ../Core/Inc/stm32h7xx_hal_conf.h \
  ../../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc.h \
