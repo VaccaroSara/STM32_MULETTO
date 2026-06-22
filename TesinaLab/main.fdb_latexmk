@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1781953461.2622 "main.aux" "main.bbl" "main" 1781953462.8552 0
-  "./bibl.bib" 1781947040.80349 271 d334981e49b2560c2200e5777cbf3f66 ""
+["bibtex main"] 1782136485.61206 "main.aux" "main.bbl" "main" 1782136494.2229 0
+  "./bibl.bib" 1782135141.15669 410 c139ad4c37dc80cef7d125deef77515f ""
   "/usr/local/texlive/2025/texmf-dist/bibtex/bst/base/ieeetr.bst" 1292289607 18361 1a00e58565e7f19bf2b3e1bfb82254ae ""
-  "main.aux" 1781953462.58649 5690 a789f4075063724e83af996b303627e7 "pdflatex"
+  "main.aux" 1782136493.99927 8708 ff33b53116eccc18e641cda65dcf4db2 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1781953461.35827 "/Users/sara/Downloads/TEMPLATE/main.tex" "main.pdf" "main" 1781953462.85534 0
-  "/Users/sara/Downloads/TEMPLATE/main.tex" 1781953395.40237 27950 7f41f39af3630e9959ffd10c728f958b ""
+["pdflatex"] 1782136485.69847 "/Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex" "main.pdf" "main" 1782136494.22303 0
+  "/Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex" 1782136481.10087 36247 1b363d13a96eef8d157b1bdaa9958dca ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1136768653 1536 02c06700a42be0f5a28664c7273f82e7 ""
@@ -113,18 +113,25 @@
   "figures/Schema.JPG" 1716545490 98464 377252ae9f9ea6f2bfccdf16680673fc ""
   "figures/diagramma.JPG" 1716545490 37358 fa593ec7ad8b4d3bb05ca73b3579e69a ""
   "figures/grafico.JPG" 1716545490 35083 02968be998cc6dade2b322f32ce22c54 ""
+  "images/Alimentazione.png" 1782129616.00254 779916 860a07d58accd19696b7c5b75ea481e4 ""
+  "images/Batteria.png" 1782129685.26934 480317 a0138fc2f304dd422c1bfe17e5271c50 ""
+  "images/Controllotrazione.png" 1782133186.71166 772405 a5e8f227b7bcf0a1346ffee2c565550b ""
   "images/Driver.png" 1781952569.78694 520896 16448c2abf5f55f67610a9719c848162 ""
   "images/Encoder.png" 1781953109.08978 459694 c3a4375b15bf4ec17c088f434a82dbbc ""
+  "images/Imu.png" 1782129935.13514 453487 96b6d1d3109990ebab7d59579f791d32 ""
   "images/Motore.png" 1781952124.17547 548542 1862476fba9bedc0c0d326e9a933a240 ""
+  "images/PID.png" 1782131124.98988 2855059 79bad94d17ce4e0996b868103e4ae54e ""
+  "images/Radiocomando.png" 1782131179.00405 819086 3353b200d18410f17416d888d693dfc5 ""
+  "images/RadiocomandoFunz.png" 1782135672.27258 1275548 13af5fbf382335cecfad4b9804447a6a ""
   "images/SchedaSTM.png" 1781951728.34366 1354124 2980e80b873a4cf95a27fbe006c45926 ""
   "images/Servo.png" 1781953449.56494 622620 b55a7a1fc9c8e54c62768c9bb818c368 ""
   "images/dii_new.png" 1716545490 3124 46e55910a4351cca539bc8072962a96d ""
   "images/logoUnivpm.jpg" 1716545490 61643 c3e27899a955ecdc3cf7f1ca18ddbb05 ""
   "images/telaio.png" 1781950652.17133 627661 a5f5de3345ed49d907d1a68771430445 ""
-  "main.aux" 1781953462.58649 5690 a789f4075063724e83af996b303627e7 "pdflatex"
-  "main.bbl" 1781953461.35578 49 0eba253fc001332e731e8aba3f23127b "bibtex main"
-  "main.tex" 1781953395.40237 27950 7f41f39af3630e9959ffd10c728f958b ""
-  "main.toc" 1781953462.58761 1748 92a10f6a4cad8de4798269eeac1ca874 "pdflatex"
+  "main.aux" 1782136493.99927 8708 ff33b53116eccc18e641cda65dcf4db2 "pdflatex"
+  "main.bbl" 1782136485.69629 281 09e70d2a3ac9d616b5c9459dfe424fb0 "bibtex main"
+  "main.tex" 1782136481.10087 36247 1b363d13a96eef8d157b1bdaa9958dca ""
+  "main.toc" 1782136494.00059 2269 397b6991f99a70d73a77605f1c0b877d "pdflatex"
   (generated)
   "main.aux"
   "main.log"
