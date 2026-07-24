@@ -5,30 +5,32 @@
 \contentsline {section}{\numberline {1.1}Controllo veicolo}{4}{}%
 \contentsline {subsection}{\numberline {1.1.1}Controllo della trazione}{4}{}%
 \contentsline {subsection}{\numberline {1.1.2}Controllo dello sterzo}{6}{}%
-\contentsline {chapter}{\numberline {2}Hardware}{8}{}%
-\contentsline {section}{\numberline {2.1}Telaio e meccaniche di supporto}{8}{}%
-\contentsline {section}{\numberline {2.2}Nucleo-144 STM32H755zi-q}{9}{}%
-\contentsline {section}{\numberline {2.3}Motore DC Reely 550er}{9}{}%
-\contentsline {section}{\numberline {2.4}Driver Motore Cytron MD10C R3}{10}{}%
-\contentsline {section}{\numberline {2.5}Encoder incrementale CUI Devices AMT102}{11}{}%
-\contentsline {section}{\numberline {2.6}Servomotore Miuzei MS24}{11}{}%
-\contentsline {section}{\numberline {2.7}Alimentazione}{12}{}%
-\contentsline {subsection}{\numberline {2.7.1}Batteria ai polimeri di litio}{12}{}%
-\contentsline {section}{\numberline {2.8}Inertial Measurement Unit}{13}{}%
-\contentsline {section}{\numberline {2.9}Radiocomando e Ricevitore Microzone}{13}{}%
-\contentsline {subsection}{\numberline {2.9.1}Funzionamento}{14}{}%
-\contentsline {subsection}{\numberline {2.9.2} Canali del ricevitore}{15}{}%
-\contentsline {section}{\numberline {2.10}Schema dei collegamenti}{16}{}%
-\contentsline {chapter}{\numberline {3}Software}{17}{}%
-\contentsline {subsection}{\numberline {3.0.1}STM32CubeIDE}{17}{}%
+\contentsline {chapter}{\numberline {2}Hardware}{7}{}%
+\contentsline {section}{\numberline {2.1}Telaio e meccaniche di supporto}{7}{}%
+\contentsline {section}{\numberline {2.2}Nucleo-144 STM32H755zi-q}{8}{}%
+\contentsline {section}{\numberline {2.3}Motore DC Reely 550er}{8}{}%
+\contentsline {section}{\numberline {2.4}Driver Motore Cytron MD10C R3}{9}{}%
+\contentsline {section}{\numberline {2.5}Encoder incrementale CUI Devices AMT102}{10}{}%
+\contentsline {section}{\numberline {2.6}Servomotore Miuzei MS24}{10}{}%
+\contentsline {section}{\numberline {2.7}Alimentazione}{11}{}%
+\contentsline {subsection}{\numberline {2.7.1}Batteria ai polimeri di litio}{11}{}%
+\contentsline {section}{\numberline {2.8}Inertial Measurement Unit}{12}{}%
+\contentsline {section}{\numberline {2.9}Radiocomando e Ricevitore Microzone}{12}{}%
+\contentsline {subsection}{\numberline {2.9.1}Funzionamento}{13}{}%
+\contentsline {subsection}{\numberline {2.9.2} Canali del ricevitore}{14}{}%
+\contentsline {section}{\numberline {2.10}Schema dei collegamenti}{15}{}%
+\contentsline {chapter}{\numberline {3}Software}{16}{}%
+\contentsline {subsection}{\numberline {3.0.1}STM32CubeIDE}{16}{}%
+\contentsline {subsection}{\numberline {3.0.2}MATLAB}{16}{}%
+\contentsline {subsection}{\numberline {3.0.3}Acquisizione dati via Terminale}{16}{}%
 \contentsline {section}{\numberline {3.1}Diagramma di flusso}{17}{}%
 \contentsline {section}{\numberline {3.2}Gestione singoli componenti}{18}{}%
-\contentsline {subsection}{\numberline {3.2.1}Gestione componente1}{20}{}%
-\contentsline {subsection}{\numberline {3.2.2}Gestione componente2}{20}{}%
-\contentsline {section}{\numberline {3.3}Funzionamento complessivo}{20}{}%
-\contentsline {chapter}{\numberline {4}Test e risultati}{21}{}%
-\contentsline {section}{\numberline {4.1}Test1}{21}{}%
-\contentsline {section}{\numberline {4.2}Test2}{21}{}%
-\contentsline {chapter}{Conclusioni e sviluppi futuri}{22}{}%
-\contentsline {chapter}{Appendici}{22}{}%
-\contentsline {chapter}{\numberline {A}Appendice1}{23}{}%
+\contentsline {subsection}{\numberline {3.2.1}Gestione componente1}{19}{}%
+\contentsline {subsection}{\numberline {3.2.2}Gestione componente2}{19}{}%
+\contentsline {section}{\numberline {3.3}Funzionamento complessivo}{19}{}%
+\contentsline {chapter}{\numberline {4}Test e risultati}{20}{}%
+\contentsline {section}{\numberline {4.1}Test1}{20}{}%
+\contentsline {section}{\numberline {4.2}Test2}{20}{}%
+\contentsline {chapter}{Conclusioni e sviluppi futuri}{21}{}%
+\contentsline {chapter}{Appendici}{21}{}%
+\contentsline {chapter}{\numberline {A}Appendice1}{22}{}%

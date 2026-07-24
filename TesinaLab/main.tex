@@ -21,6 +21,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{booktabs}
+\usepackage{array}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definecolor{custom_green}{rgb}{0,0.6,0}
@@ -285,19 +286,20 @@ Per il controllo della trazione, ovvero la regolazione della velocità longitudi
 La gestione direzionale del veicolo è affidata al sistema di sterzo delle ruote anteriori e ai segnali inviati dal radiocomando. L'attuazione meccanica è realizzata mediante un servomotore, un tipo particolare di motore che, agendo sui braccetti dello sterzo, è in grado di ruotare in una specifica posizione e mantenerla. Inoltre, in questo prototipo è stato implementato un controllo a ciclo chiuso per garantire la massima precisione nell'inseguimento della traiettoria e compensare i disturbi dinamici come gli attriti del terreno. Di conseguenza, il controllo prevede l'utilizzo di un regolatore PID, implementato all'interno del microcontrollore STM32. 
 \noindent Il controllore riceve in ingresso l'errore $e(t)$, definito come la differenza tra l'angolo di sterzo di riferimento richiesto $\delta_{\text{ref}}(t)$, letto dal radiocomando, e l'angolo reale misurato dai sensori di bordo $\delta_{\text{reale}}(t)$:
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/Controllotrazione} 
-    \captionsetup{labelsep=none}
-    \caption{}
-    \label{fig:telaio}
-\end{figure}
-
 \begin{equation}
     e(t) = \delta_{\text{ref}}(t) - \delta_{\text{reale}}(t)
 \end{equation}
 
 \noindent L'azione correttiva calcolata dall'algoritmo PID viene tradotta in un segnale di pilotaggio PWM inviato al servomotore. Per questa tipologia di attuatori, il controllo della posizione non dipende dal \textit{Duty Cycle} percentuale classico, bensì dalla larghezza assoluta dell'impulso positivo $T_{on}$ all'interno di un periodo fisso di 20 ms, corrispondente ad una frequenza di 50 Hz.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{images/Controllotrazione} 
+    \captionsetup{labelsep=none}
+    \caption{}
+    \label{fig:telaio}
+\end{figure}
 
 \newpage
 \chapter{Hardware}
@@ -461,7 +463,7 @@ ricevitore e trasmettitore che hanno le seguenti caratteristiche \cite{Relazione
     \label{tab:Trasmettitore}
     \vspace{0.2cm} 
     \renewcommand{\arraystretch}{1.3} 
-    \begin{tabular}{@{} p{6.5cm} c @{}}
+    \begin{tabular}{@{} p{6.5cm} >{\centering\arraybackslash}p{4.5cm} @{}}
         \toprule
         \textbf{Caratteristiche} & \textbf{Valori} \\
         \midrule
@@ -480,7 +482,7 @@ ricevitore e trasmettitore che hanno le seguenti caratteristiche \cite{Relazione
     \label{tab:Ricevitore}
     \vspace{0.2cm} 
     \renewcommand{\arraystretch}{1.3} 
-    \begin{tabular}{@{} p{6.5cm} c @{}}
+    \begin{tabular}{@{} p{6.5cm} >{\centering\arraybackslash}p{4.5cm} @{}}
         \toprule
         \textbf{Caratteristiche} & \textbf{Valori} \\
         \midrule
@@ -543,8 +545,7 @@ canale 6 per rilevare la frequenza dei segnali inviati dal radiocomando. Infatti
 riportato in seguito, i segnali inviati dai diversi canali hanno tutti la stessa frequenza.
 
 \section{Schema dei collegamenti}
-Inserire uno schema dei collegamenti analogo a quello in Figura \ref{fig:schema}. Si suggerisce per lo scopo di usare il software "draw.io". Nello schema riportare tutti i collegamenti tra i componenti, specificando quale pin di un componente1 si collega con quale pin di un componente2 (per la maggior parte dei collegamenti dovete cioè avere una linea con 2 label). \\
-Inserire anche una descrizione testuale dello schema.
+La Figura \ref{fig:schema} illustra lo schema generale dei collegamenti elettrici e di segnale che costituiscono l'architettura hardware del prototipo. Il sistema è centralizzato attorno alla scheda di sviluppo STM32, la quale funge da nodo principale per l'elaborazione logica, l'acquisizione dei dati e il controllo degli attuatori. 
 
 \begin{figure}[H]
 \centering
@@ -555,13 +556,25 @@ Inserire anche una descrizione testuale dello schema.
 
 
 \chapter{Software}
-In questo capitolo verranno trattati gli strumenti software impiegati per lo sviluppo del
-progetto. Il loro utilizzo ha permesso la programmazione del microcontrollore e la
-conseguente implementazione di tutti i controlli necessari al corretto funzionamento del
-veicolo, oltre che di avere un supporto nella fase di testing grazie alla visualizzazione di
-informazioni e grafici in tempo reale.
+Il presente capitolo descrive gli applicativi software impiegati per lo sviluppo del progetto. L'utilizzo di tali strumenti ha consentito la programmazione del microcontrollore e la successiva implementazione degli algoritmi di controllo necessari al funzionamento dinamico del veicolo. Inoltre, l'infrastruttura software si è rivelata un supporto fondamentale durante la fase di \textit{testing}, permettendo l'acquisizione e la visualizzazione in tempo reale dei parametri di telemetria e dei grafici di risposta del sistema.
 
 \subsection{STM32CubeIDE}
+Il firmware per la scheda STM32H755ZI-Q è stato interamente sviluppato in linguaggio C avvalendosi di STM32CubeIDE, l'ambiente di sviluppo integrato ufficiale di STMicroelectronics. Quest'ultimo mette a disposizione un'avanzata interfaccia grafica che, tramite un file di configurazione con estensione \texttt{.ioc}, permette di inizializzare l'hardware del microcontrollore in modo rapido e intuitivo. Tra le principali impostazioni gestite figurano:
+\begin{itemize}
+    \item Configurazione dell'albero di \textit{clock} del sistema;
+    \item Assegnazione e configurazione dei pin di input/output (GPIO);
+    \item Setup dei Timer hardware (es. per la generazione del PWM e la lettura dell'encoder);
+    \item Inizializzazione delle interfacce di comunicazione (UART, I$^2$C, SPI).
+\end{itemize}
+
+\noindent Una volta ultimata la configurazione grafica, l'IDE provvede alla generazione automatica del codice C di base, fornendo un'architettura software pre-inizializzata su cui lo sviluppatore può procedere direttamente all'implementazione della logica di controllo.
+
+\subsection{MATLAB}
+MATLAB, ambiente di calcolo numerico e linguaggio di programmazione sviluppato da MathWorks, è uno strumento ampiamente impiegato in ambito ingegneristico per l'analisi dei dati, lo sviluppo di algoritmi, la simulazione di sistemi di controllo e l'elaborazione dei segnali. Il software si distingue per una sintassi intuitiva, un'architettura ottimizzata per la gestione di matrici e vettori, e la disponibilità di numerosi \textit{toolbox} settoriali, uniti a potenti interfacce per la visualizzazione grafica in 2D e 3D.
+All'interno di questo progetto, le funzionalità di \textit{plotting} di MATLAB sono state impiegate specificamente per l'acquisizione e la visualizzazione dei dati in tempo reale (\textit{real-time}), fornendo un prezioso supporto visivo per il monitoraggio delle variabili in gioco e la validazione del comportamento dinamico del veicolo.
+
+\subsection{Acquisizione dati via Terminale}
+Per la cattura e la verifica preliminare dei dati telemetrici inviati dal microcontrollore, ci si è avvalsi del terminale nativo di macOS in esecuzione su un MacBook Pro M2. Sfruttando la comunicazione seriale (UART via USB) tra la scheda STM32 e il computer, l'interfaccia a riga di comando ha permesso di monitorare e registrare il flusso continuo di dati grezzi in uscita. Questa procedura si è rivelata uno step di \textit{debug} cruciale: ha consentito di verificare l'integrità, la frequenza e la corretta formattazione dei pacchetti dati (come i conteggi dell'encoder o l'errore del PID) prima che questi venissero acquisiti ed elaborati dall'ambiente MATLAB per il \textit{plotting} in tempo reale.
 
 \section{Diagramma di flusso}
 Inserire un diagramma di flusso analogo a quello in Figura \ref{fig:diagramma} che spiega il funzionamento generale del codice sviluppato. Inserire anche una descrizione testuale del funzionamento.
