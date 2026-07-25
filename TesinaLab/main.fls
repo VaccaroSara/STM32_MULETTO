@@ -1,8 +1,8 @@
-PWD /Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab
+PWD /Users/tareknaja/Desktop/Uni/Lab Auto/STM32_MULETTO/TesinaLab
 INPUT /usr/local/texlive/2025/texmf.cnf
 INPUT /usr/local/texlive/2025/texmf-dist/web2c/texmf.cnf
 INPUT /usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT /Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex
+INPUT /Users/tareknaja/Desktop/Uni/Lab Auto/STM32_MULETTO/TesinaLab/main.tex
 OUTPUT main.log
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/report.cls
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/report.cls
@@ -234,20 +234,27 @@ INPUT ./images/RadiocomandoFunz.png
 INPUT ./images/RadiocomandoFunz.png
 INPUT ./images/RadiocomandoFunz.png
 INPUT ./images/RadiocomandoFunz.png
-INPUT ./figures/Schema.JPG
-INPUT ./figures/Schema.JPG
-INPUT ./figures/Schema.JPG
-INPUT ./figures/Schema.JPG
-INPUT ./figures/Schema.JPG
+INPUT ./images/diagramma_componenti.png
+INPUT ./images/diagramma_componenti.png
+INPUT ./images/diagramma_componenti.png
+INPUT ./images/diagramma_componenti.png
+INPUT ./images/diagramma_componenti.png
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
-INPUT ./figures/diagramma.JPG
-INPUT ./figures/diagramma.JPG
-INPUT ./figures/diagramma.JPG
-INPUT ./figures/diagramma.JPG
-INPUT ./figures/diagramma.JPG
-INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
-INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
-INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT ./images/diagramma_di_flusso.png
+INPUT ./images/diagramma_di_flusso.png
+INPUT ./images/diagramma_di_flusso.png
+INPUT ./images/diagramma_di_flusso.png
+INPUT ./images/diagramma_di_flusso.png
+INPUT ./images/impostazioni_timer.png
+INPUT ./images/impostazioni_timer.png
+INPUT ./images/impostazioni_timer.png
+INPUT ./images/impostazioni_timer.png
+INPUT ./images/impostazioni_timer.png
+INPUT ./images/BothEdges.png
+INPUT ./images/BothEdges.png
+INPUT ./images/BothEdges.png
+INPUT ./images/BothEdges.png
+INPUT ./images/BothEdges.png
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
@@ -257,10 +264,18 @@ INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstmisc.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstmisc.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstmisc.sty
-INPUT ./codefiles/example_code.cpp
-INPUT ./codefiles/example_code.cpp
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmr9.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmtt9.tfm
+INPUT ./images/Timer5_Channels.png
+INPUT ./images/Timer5_Channels.png
+INPUT ./images/Timer5_Channels.png
+INPUT ./images/Timer5_Channels.png
+INPUT ./images/Timer5_Channels.png
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT ./codefiles/example_code.cpp
+INPUT ./codefiles/example_code.cpp
 INPUT codefiles/example_code.cpp
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty

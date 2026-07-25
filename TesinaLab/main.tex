@@ -179,14 +179,12 @@
 \pagestyle{plain}
 
 \section*{Introduzione}
-Spiegazione dettagliata del task assegnato al gruppo (cosa avete fatto e su quale sistema).\\
-Se per lo svolgimento del task è stato necessario interagire con altri gruppi che hanno lavorato sullo stesso sistema presentare anche brevemente i task svolti dagli altri gruppi e spiegare la loro interconnessione.
-Se si è invece optato per far confluire il lavoro di più gruppi in un'unica relazione, va spiegato qual era il task iniziale dei singoli gruppi e poi come è avvenuta l'integrazione. \\
-In sintesi, l'introduzione deve permettere al lettore di capire subito su cosa avete lavorato.
-Al termine dell'introduzione inserite anche una breve descrizione per capitoli del contenuto della restante parte della relazione (es Nel Capitolo \ref{Hardware} viene descritto...). \\
-\newline
-Nel seguito la struttura in capitoli di massima per ogni relazione, da adattare qualora necessario. \\
-\textcolor{red}{NOTA: La relazione va pensata e scritta nell'ottica di dare a chi verrà dopo di voi un documento utile per capire a che punto è arrivata l'attività svolta dal vostro gruppo e per metterli in condizione di portare avanti il vostro lavoro. Di conseguenza dovete essere chiari e diretti, riportando solo le informazioni necessarie e evidenziando in modo critico cosa effettivamente funziona correttamente e cosa va migliorato}
+Il presente elaborato documenta le fasi di progettazione, sviluppo e validazione del firmware di controllo per un veicolo elettrico in scala 1:10. Nello specifico, il lavoro operativo è stato suddiviso in tre task fondamentali: l'interfacciamento e la decodifica dei segnali radio, la regolazione della trazione per la gestione della velocità e il controllo direzionale dello sterzo, questi ultimi implementati mediante algoritmi di controllo PID.
+Nel primo capitolo, viene fornita una descrizione generale del sistema, definendo il contesto operativo e le logiche alla base del controllo della trazione e dello sterzo. Successivamente, il secondo e il terzo capitolo offrono una panoramica dettagliata dell'architettura hardware e degli ambienti software impiegati, delineando tutti i requisiti strumentali necessari per la riproduzione del setup sperimentale. 
+Al suo interno viene dapprima analizzata la struttura generale del codice, per poi scendere nel dettaglio degli algoritmi sviluppati per l'acquisizione e l'elaborazione dei segnali del radiocomando, 
+illustrando l'impostazione dei timer, il calcolo del Duty Cycle e la gestione degli interrupt. A partire da queste fondamenta, vengono discussi i codici e le librerie specifiche implementate mediante l'utilizzo di regolatori PID, analizzando dapprima l'erogazione della trazione tramite la lettura dell'encoder, e successivamente il controllo direzionale dello sterzo, inclusa la sua necessaria calibrazione meccanica. 
+Per dimostrare la validità del lavoro svolto, ciascuna di queste tre macro-fasi di implementazione software, è corredata da un'analisi dedicata ai test sul campo e ai risultati ottenuti, 
+permettendo di verificare concretamente la prontezza e la stabilità della risposta dinamica del veicolo. Infine, la relazione si conclude con una panoramica sui possibili sviluppi futuri, delineando potenziali miglioramenti e ottimizzazioni per le successive evoluzioni del prototipo.
 
 \newpage
 \chapter{Descrizione del sistema}
@@ -418,6 +416,7 @@ Per questo motivo è stato necessario utilizzare dei convertitori DC-DC  XL4015,
     \caption{}
     \label{fig:telaio}
 \end{figure}
+
 \subsection{Batteria ai polimeri di litio}
 \noindent Il sistema è alimentato da una batteria ai polimeri di litio (LiPo) 2S (2 celle) con una tensione
 nominale di 7.4V e una capacità di 5500 mAh, in grado di erogare una corrente di 5.5A per la durata di un’ora, garantendo una corretta alimentazione avendo una discreta autonomia.
@@ -456,7 +455,7 @@ Drones/Quadcopters” modello: “MC6C”.
 \end{figure}
 \noindent Il radiocomando dispone di sei canali e la banda va dai 2,401 GHz a 2,479 GHz. La distanza
 massima di controllo è di 800m e utilizza 4 batterie xAA. Il radiocomando è inoltre dotato di
-ricevitore e trasmettitore che hanno le seguenti caratteristiche \cite{Relazione1}:
+ricevitore e trasmettitore che hanno le seguenti caratteristiche:
 \begin{table}[H]
     \centering
     \caption{Caratteristiche del trasmettitore}
@@ -540,16 +539,14 @@ dallo spostamento delle varie levette. La seguente tabella riporta la relazione 
         \bottomrule
     \end{tabular}
 \end{table}
-Per la realizzazione del progetto sono stati utilizzati solo i canali 2 e 4 per le levette ed il
-canale 6 per rilevare la frequenza dei segnali inviati dal radiocomando. Infatti, come verrà
-riportato in seguito, i segnali inviati dai diversi canali hanno tutti la stessa frequenza.
+Per la realizzazione del progetto sono stati utilizzati solo i canali 2 e 4 per le levette.
 
 \section{Schema dei collegamenti}
 La Figura \ref{fig:schema} illustra lo schema generale dei collegamenti elettrici e di segnale che costituiscono l'architettura hardware del prototipo. Il sistema è centralizzato attorno alla scheda di sviluppo STM32, la quale funge da nodo principale per l'elaborazione logica, l'acquisizione dei dati e il controllo degli attuatori. 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/Schema.JPG}
+\includegraphics[width=0.8\textwidth,keepaspectratio]{images/diagramma_componenti.png}
 \caption{Schema dei collegamenti}
 \label{fig:schema}
 \end{figure}
@@ -576,15 +573,289 @@ All'interno di questo progetto, le funzionalità di \textit{plotting} di MATLAB 
 \subsection{Acquisizione dati via Terminale}
 Per la cattura e la verifica preliminare dei dati telemetrici inviati dal microcontrollore, ci si è avvalsi del terminale nativo di macOS in esecuzione su un MacBook Pro M2. Sfruttando la comunicazione seriale (UART via USB) tra la scheda STM32 e il computer, l'interfaccia a riga di comando ha permesso di monitorare e registrare il flusso continuo di dati grezzi in uscita. Questa procedura si è rivelata uno step di \textit{debug} cruciale: ha consentito di verificare l'integrità, la frequenza e la corretta formattazione dei pacchetti dati (come i conteggi dell'encoder o l'errore del PID) prima che questi venissero acquisiti ed elaborati dall'ambiente MATLAB per il \textit{plotting} in tempo reale.
 
+\chapter{Implementazione del firmware}
+In questo capitolo verranno analizzati gli algoritmi di controllo sviluppati sul microcontrollore
+dal punto di vista della loro implementazione. La trattazione sarà divisa in quattro sezioni, la
+prima fornirà una descrizione generale della struttura del codice, mentre le successive
+riguarderanno ognuna un aspetto fondamentale del moto del veicolo: ossia il controllo del
+radiocomando, della trazione e dello sterzo.
 \section{Diagramma di flusso}
-Inserire un diagramma di flusso analogo a quello in Figura \ref{fig:diagramma} che spiega il funzionamento generale del codice sviluppato. Inserire anche una descrizione testuale del funzionamento.
+Si descrivere in maniera complessiva la logica del sistema attraverso il successivo
+diagramma di flusso \ref{fig:diagramma}: 
+
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/diagramma.JPG}
+\includegraphics[width=\textwidth, height=0.85\textheight, keepaspectratio]{images/diagramma_di_flusso.png}
 \caption{Diagramma di flusso del codice sviluppato}
 \label{fig:diagramma}
 \end{figure}
+
+Si evidenzia come il flusso di esecuzione delle istruzioni del codice inizi con una fase preliminare di setup, in cui vengono inizializzate le periferiche di sistema (Timer, PWM, UART, I2C) e configurati i componenti essenziali, ovvero l'unità inerziale (IMU BNO055) e i due regolatori PID per il controllo della trazione e dello sterzo. Successivamente, il programma entra in un 
+ciclo di esecuzione infinito, rappresentato dal blocco “while(TRUE)”. 
+All'interno di questo ciclo, il flusso operativo dipende dall'esito di due blocchi condizionali principali. Il primo verifica costantemente la ricezione di nuovi comandi impartiti tramite il radiocomando. Quando questa condizione è verificata (TRUE), i segnali grezzi in ingresso vengono elaborati attraverso un filtro FIR (Finite Impulse Response), 
+al fine di smorzarne le oscillazioni, e vengono aggiornate le rispettive variabili filtrate che rappresentano il setpoint imposto dal pilota. Nel caso in cui non vi siano nuovi dati (FALSE), l'algoritmo salta l'elaborazione del filtro.
+Il flusso prosegue poi verso la seconda condizione, che rappresenta il cuore del sistema di controllo in tempo reale: la verifica della variabile temporale “flag\_10ms”. Se tale variabile assume il valore 1 (TRUE), significa che è trascorso il periodo di campionamento prefissato di 10 millisecondi. In questa occorrenza, il sistema esegue in stretta 
+sequenza le operazioni necessarie per il movimento del veicolo: procede prima con la lettura della velocità attuale dall'encoder, il calcolo degli RPM target e l'esecuzione del controllo PID della trazione; successivamente effettua la lettura del tasso di imbardata reale dall'IMU per alimentare il controllo PID dello sterzo. 
+Al termine di queste operazioni, o nel caso in cui il periodo di 10ms non sia ancora trascorso (FALSE), il flusso ritorna all'inizio del ciclo per ripetere le verifiche. Tutti gli algoritmi utilizzati sono stati sviluppati mediante linguaggio C e l’ambiente di sviluppo STM32CubeIDE.
+
+\section{Implementazione relativa al radiocomando}
+L'implementazione relativa al radiocomando rappresenta il fulcro di questa relazione:
+l’obiettivo del progetto è infatti proprio quello di gestire la comunicazione tra radiocomando
+e microcontrollore, al fine di gestire il moto del veicolo (trazione e sterzo).
+
+\subsection{Impostazioni iniziali timers e calcolo preliminare di frequenza e duty}
+In questa sottosezione si riportano le impostazioni inziali dei Timers e il codice utilizzato per
+l’acquisizione dei primi valori di frequenza e duty fondamentali per le fasi di implementazione
+successive.
+Inizialmente si è analizzato il segnale PWM restituito da ogni canale del ricevitore. Per
+ottenere la frequenza ed il duty cycle tutti i canali, è stato utilizzato un interrupt in modalità
+InputCapture che consente di studiare un segnale preso come input, generato appunto dal
+ricevitore. Tramite la configurazione nel file “.ioc” di questo interrupt, è necessario specificare
+la “Polarity Section”, ovvero a quale evento del segnale si è interessati: “Rising Edge” (fronte
+di salita), “Falling Edge” (fronte di discesa), “Both Edges” (fronte di salita e di discesa).
+Grazie a quanto appreso da relazioni precedenti in cui si era utilizzato un oscilloscopio, si è a
+conoscenza del fatto che tutti i segnali sono sincronizzati tra loro, ovvero hanno stessa
+frequenza e non sono sfasati tra loro. Questa osservazione sarà utile in un secondo momento.
+
+\subsubsection{Impostazioni timer}
+I timer permettono di misurare il tempo e quindi di ottenere i valori desiderati dalla ricevente. Per l'utilizzo dell'Input Capture (sfruttando i canali PA0 e PA3 del TIM5) si è deciso di utilizzare un timer con un clock di 64 MHz, che viene diviso dal "Prescaler". Poiché a livello hardware il microcontrollore somma sempre 1 al valore del registro, per ottenere un clock effettivo di 1 MHz il parametro è stato settato a 63, calcolato mediante la formula $PSC = \frac{64.000.000}{1.000.000} - 1$.
+
+Inoltre, poiché la frequenza minima leggibile è data da $\frac{TIMCLOCK}{COUNTERPERIOD}$, si è deciso di lasciare il "Counter Period" al massimo, ovvero 0xffffffff (corrispondente a 4294967295) essendo il TIM5 un timer a 32 bit.
+    \begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/impostazioni_timer.png}
+\caption{Impostazioni timer}
+\label{fig:impostazioni_timer}
+\end{figure}
+\subsubsection{Acquisizione del segnale PWM}
+Il segnale PWM in uscita dal ricevitore del radiocomando presenta una frequenza fissa (tipicamente 50 Hz, pari a un periodo di 20 ms). Pertanto, il calcolo della frequenza risulta irrilevante ai fini del controllo dinamico del veicolo. L'informazione vitale legata al comando impartito dal pilota risiede unicamente nella larghezza dell'impulso alto ($T_{on}$), che varia proporzionalmente al movimento delle levette in un intervallo tipicamente compreso tra 1000 $\mu$s e 2000 $\mu$s.
+
+Per acquisire direttamente questo dato vitale, si è configurato il parametro ``Polarity Selection'' su ``Both Edges'' all'interno dell'ambiente di sviluppo, discostandosi da un approccio basato sul solo fronte di salita. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/BothEdges.png} 
+\caption{Configurazione Polarity Selection su Both Edges}
+\label{fig:polarity_both}
+\end{figure}
+
+La logica di acquisizione è gestita all'interno della funzione di callback \texttt{HAL\_TIM\_IC\_CaptureCallback}. Tramite l'ausilio di flag di stato (come \texttt{Is\_First\_Captured\_Steering}), il sistema salva il valore del contatore hardware al verificarsi del fronte di salita, commutando contestualmente la sensibilità del canale sul fronte opposto. Al successivo fronte di discesa, il contatore viene letto nuovamente per poterne calcolare la differenza temporale. 
+
+Poiché il timer opera con un clock effettivo di 1 MHz, la differenza algebrica tra le due letture restituisce la durata dell'impulso espressa direttamente in microsecondi. Tale valore viene salvato nelle variabili globali (\texttt{steering\_us} e \texttt{throttle\_us}) per essere impiegato come setpoint, a patto che superi il controllo di sicurezza implementato per scartare letture anomale esterne al range nominale (600--2400 $\mu$s).
+
+\begin{lstlisting}[language=Cpp, caption="Codice per la lettura del segnale PWM tramite Input Capture"]
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    // STERZO -> PA3 (TIM5 CH4)
+    if (htim->Instance == TIM5 && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
+    {
+        static uint32_t ic_val1_s = 0;
+        uint32_t ic_val2_s = 0;
+        uint32_t diff_steering = 0;
+
+        if (Is_First_Captured_Steering == 0)
+        {
+            ic_val1_s = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
+            Is_First_Captured_Steering = 1;
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_4, TIM_INPUTCHANNELPOLARITY_FALLING);
+        }
+        else
+        {
+            ic_val2_s = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
+
+            if (ic_val2_s > ic_val1_s)
+                diff_steering = ic_val2_s - ic_val1_s;
+            else
+                diff_steering = (0xFFFFFFFF - ic_val1_s) + ic_val2_s;
+
+            // Per lo sterzo FIR
+            if (diff_steering > 600 && diff_steering < 2400) {
+                steering_us = diff_steering;
+                new_rc_steering = 1;
+            }
+
+            Is_First_Captured_Steering = 0;
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_4, TIM_INPUTCHANNELPOLARITY_RISING);
+        }
+    }
+
+    // Trazione -> PA0 (TIM5 CH1)
+    if (htim->Instance == TIM5 && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
+    {
+        static uint32_t ic_val1_t = 0;
+        uint32_t ic_val2_t = 0;
+        uint32_t diff_throttle = 0;
+
+        if (Is_First_Captured_Throttle == 0)
+        {
+            ic_val1_t = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
+            Is_First_Captured_Throttle = 1;
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_FALLING);
+        }
+        else
+        {
+            ic_val2_t = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
+
+            if (ic_val2_t > ic_val1_t)
+                diff_throttle = ic_val2_t - ic_val1_t;
+            else
+                diff_throttle = (0xFFFFFFFF - ic_val1_t) + ic_val2_t;
+
+            if (diff_throttle > 600 && diff_throttle < 2400) {
+                throttle_us = diff_throttle;
+                new_rc_throttle = 1;
+            }
+
+            Is_First_Captured_Throttle = 0;
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_RISING);
+        }
+    }
+}
+\end{lstlisting}
+
+\subsubsection{Gestione degli Interrupt e ottimizzazione dei Timer}
+
+A differenza delle classiche implementazioni hardware che prevedono l'azzeramento forzato del contatore del timer ad ogni fronte di salita (metodologia che impedisce la lettura simultanea di più canali e costringe all'utilizzo di molteplici timer), in questo progetto si è optato per un approccio software non distruttivo.
+
+Come si evince dalla configurazione di sistema in STM32CubeMX (Figura \ref{fig:tim5_configurazione}), il timer dedicato alla decodifica (TIM5) è attivamente impiegato sui canali 1 e 4 in modalità \textit{Input Capture direct mode}, ma il suo contatore viene fatto avanzare in modo continuo (fino al suo limite massimo a 32 bit, pari a 4294967295) senza mai subire reset forzati. All'attivazione dell'interrupt, la \textit{callback} si limita a "fotografare" il valore assoluto del registro (tramite la funzione \verb|HAL_TIM_ReadCapturedValue|).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth,keepaspectratio]{images/Timer5_Channels.png} 
+\caption{Configurazione del TIM5 con i canali 1 e 4 attivi}
+\label{fig:tim5_configurazione}
+\end{figure}
+
+La durata dell'impulso viene così ricavata puramente per differenza matematica tra il timestamp di discesa e quello di salita. Per prevenire errori di calcolo nel raro caso in cui avvenga un overflow del timer proprio durante un impulso, l'algoritmo include un controllo condizionale che compensa il riavvio del conteggio sommano il complemento a due del limite massimo.
+
+Questa architettura software garantisce numerosi vantaggi:
+\begin{itemize}
+    \item \textbf{Ottimizzazione delle risorse:} consente di gestire in modo totalmente asincrono e indipendente l'acquisizione dei comandi Xa e Xb utilizzando un unico timer (TIM5) e due soli canali, riducendo il carico computazionale e liberando le restanti periferiche del microcontrollore.
+    \item \textbf{Assenza di interferenze:} poiché il contatore principale non viene mai azzerato, l'arrivo di un interrupt sul canale dedicato a Xb non corrompe in alcun modo il conteggio temporale in corso sul canale di Xa, garantendo una precisione assoluta su entrambi i segnali in ingresso.
+    \item \textbf{Flessibilità della polarità:} la commutazione dinamica della polarità (da \textit{Falling} a \textit{Rising} e viceversa) viene gestita direttamente all'interno della singola routine di interrupt.
+\end{itemize}
+
+\subsubsection{Struttura codice principale}
+In questo progetto si è scelto di centralizzare l'acquisizione e il filtraggio dei comandi direttamente all'interno del file \verb|main.c|. Questa architettura riduce l'overhead delle chiamate a funzioni, ottimizzando i tempi di esecuzione per il sistema di controllo in tempo reale. Il codice si articola in tre concetti fondamentali per il trattamento dei dati:
+\begin{enumerate}
+    \item \textbf{Struttura dati centralizzata}\\
+    Invece di utilizzare strutture separate unicamente per la lettura temporale dei segnali, lo stato globale e le cinematiche della vettura sono state incapsulate in un'unica \verb|struct| denominata \verb|vehicleData|. Questa struttura funge da raccoglitore univoco per tutte le metriche fondamentali, semplificando enormemente la gestione della memoria e il passaggio di parametri alle funzioni di controllo.
+
+    \begin{lstlisting}[language=Cpp, caption="Definizione della struttura dati del veicolo"]
+typedef struct VehicleData {
+    // Trazione (Xa)
+    int counts;
+    int ref_count;
+    int delta_count;
+    float motor_speed_RPM;
+    float linear_speed_m_s;
+    float motor_speed_ref_RPM;
+    uint8_t motor_direction_ref;
+
+    // Sterzo (Xb)
+    double yaw_rate_rad_sec;
+    double yaw_rate_deg_sec;
+    double yaw_rate_ref_rad_sec;
+} vehicleData;
+    \end{lstlisting}
+
+    \item \textbf{Stabilizzazione e Zona Morta (Dead Band)}\\
+    I potenziometri fisici presenti sui radiocomandi commerciali sono intrinsecamente soggetti a lievi fluttuazioni elettriche e rumore meccanico. Se non filtrati, tali disturbi farebbero percepire al microcontrollore un comando variabile anche quando le levette sono a riposo (centrate idealmente a 1500 $\mu$s), causando impercettibili movimenti dei motori.
+    Per ovviare a questo problema, è stata implementata via software una "zona morta" di sicurezza. Come visibile nel codice, qualsiasi variazione del segnale di trazione (\textbf{Xa}) e di sterzo (\textbf{Xb}) che ricada nell'intorno del punto di neutro viene forzatamente ignorata, garantendo il perfetto arresto del veicolo e l'allineamento delle ruote anteriori.
+
+    \begin{lstlisting}[language=Cpp, caption="Implementazione della zona morta per Xa e Xb"]
+// Zona morta per la trazione (Xa)
+if(throttle_filtered > 1560.0f) {
+    target_dir = 1;
+    target_rpm = ((throttle_filtered - 1560.0f) * MAX_TARGET_RPM) / 433.0f;
+}
+else if(throttle_filtered < 1440.0f) {
+    target_dir = 0;
+    target_rpm = ((1440.0f - throttle_filtered) * MAX_TARGET_RPM) / 449.0f;
+}
+else {
+    target_rpm = 0.0f;
+    target_dir = 0;
+    pid_traction.Iterm = 0;
+    pid_traction.e_old = 0;
+}
+
+// Zona morta per lo sterzo (Xb)
+if (steering_filtered > 1460.0f && steering_filtered < 1560.0f) {
+    pid_steering.Iterm = 0;
+    pid_steering.e_old = 0;
+    u_sterzo = 0.0f;
+}
+    \end{lstlisting}
+
+    \item \textbf{Ciclo Infinito (Main Loop)}\\
+    Tutte queste operazioni avvengono costantemente all'interno del ciclo infinito \verb|while(1)|. Qui i segnali grezzi intercettati dagli interrupt vengono passati prima attraverso un filtro FIR per regolarizzarne l'andamento, poi limitati dalle zone morte descritte in precedenza e infine mappati nei riferimenti (setpoint) da fornire agli anelli di controllo PID.
+\end{enumerate}
+
+\subsubsection{Operazioni di inizializzazione e avvio dei Timer}
+L'approccio implementato per l'avvio e la configurazione del sistema all'interno del \verb|main.c| si basa su una logica del tutto asincrona e non bloccante. Le operazioni iniziali si limitano ad avviare le periferiche necessarie in sequenza, delegando l'intera logica di allineamento al fronte d'onda alla macchina a stati finiti (gestita tramite i flag software) implementata direttamente all'interno della routine di \textit{interrupt}.
+In particolare, per quanto riguarda l'acquisizione dei segnali provenienti dal radiocomando (Xa per la trazione e Xb per lo sterzo), è sufficiente abilitare gli \textit{interrupt} legati all'Input Capture sui canali 1 e 4 del TIM5. Contestualmente, viene avviato il timer di base (TIM6) che scandisce il ciclo di controllo primario ogni 10 ms.
+\begin{lstlisting}[language=Cpp, caption="Avvio delle periferiche hardware e del sistema di controllo"]
+// Avvio del Timer per il ciclo di esecuzione a 10ms
+HAL_TIM_Base_Start_IT(&htim6);
+// Avvio degli interrupt di Input Capture per Xa (Trazione) e Xb (Sterzo)
+HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_1);
+HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_4);
+// Inizializzazione delle strutture PID per trazione e sterzo
+init_PID(&pid_traction, TRACTION_SAMPLING_TIME, MAX_U_TRACTION, MIN_U_TRACTION);
+tune_PID(&pid_traction, KP_TRACTION, KI_TRACTION, 0);
+init_PID(&pid_steering, STEERING_SAMPLING_TIME, MAX_U_STEERING, MIN_U_STEERING);
+tune_PID(&pid_steering, KP_STEERING, KI_STEERING, 0);
+\end{lstlisting}
+Questo paradigma architetturale snellisce il codice sorgente e riduce i tempi di accensione del sistema (\textit{boot}), scongiurando inoltre il rischio di blocchi critici (\textit{deadlock}) nel caso in cui il radiocomando sia spento al momento dell'accensione del microcontrollore. Essendo privo di attese bloccanti, il flusso principale continua la sua esecuzione naturale, inizializzando i sensori (come l'IMU via I$^2$C) e posizionando le variabili di sicurezza nelle relative zone morte.
+Ciò garantisce che il veicolo venga mantenuto in uno stato stazionario sicuro fino all'effettiva ricezione del primo pacchetto dati valido.
+
+\subsubsection{Ciclo di esecuzione principale (Main Loop)}
+Una volta concluse le operazioni di inizializzazione e avviate le periferiche, il firmware entra nel ciclo di esecuzione infinito \verb|while(1)|. La struttura di questo ciclo è stata progettata per separare logicamente l'acquisizione asincrona dei comandi radio dall'anello di controllo deterministico del veicolo.
+Il ciclo si divide in due macro-blocchi fondamentali:
+\begin{enumerate}
+    \item \textbf{Acquisizione e validazione comandi:} non appena i flag \verb|new_rc_throttle| e \verb|new_rc_steering| segnalano la disponibilità di un nuovo dato temporale (Xa e Xb), il sistema provvede a validare e pre-filtrare i segnali grezzi, salvandoli nelle variabili globali di stato.
+    \item \textbf{Anello di controllo (10 ms):} sfruttando un flag hardware (\verb|Flag_10ms|) generato dall'interrupt del TIM6, il sistema esegue il calcolo delle leggi di controllo a una frequenza fissa e predicibile (100 Hz). In questa fase vengono acquisiti i feedback dai sensori (Encoder e IMU), vengono generati i setpoint e calcolate le azioni di controllo PID.
+\end{enumerate}
+Di seguito è riportata la struttura architetturale del ciclo principale:
+\begin{lstlisting}[language=Cpp, caption="Struttura a macro-blocchi del loop infinito principale"]
+while (1)
+{
+    // --- 1. ACQUISIZIONE E VALIDAZIONE COMANDI RADIO ---
+    if(new_rc_throttle)
+    {
+        new_rc_throttle = 0;
+        // ... (Filtro e validazione segnale Xa) ...
+    }
+
+    if(new_rc_steering)
+    {
+        new_rc_steering = 0;
+        // ... (Filtro e validazione segnale Xb) ...
+    }
+
+    // --- 2. ANELLO DI CONTROLLO DETERMINISTICO (10 ms) ---
+    if (Flag_10ms == 1)
+    {
+        Flag_10ms = 0;
+
+        // Acquisizione feedback sensori (Encoder, BNO055)
+        // ...
+        
+        // Mappatura comandi Xa e Xb in setpoint fisici (RPM e rad/s)
+        // ...
+
+        // Esecuzione PID Trazione e Sterzo
+        // ...
+        
+        // Applicazione output ai motori e telemetria
+        // ...
+    }
+}
+\end{lstlisting}
+L'implementazione matematica dei filtri di validazione e le logiche di mappatura dei segnali Xa e Xb nei rispettivi setpoint fisici verranno analizzate in dettaglio nei successivi capitoli, 
+dedicati al \textbf{Controllo della Trazione} e al \textbf{Controllo dello Sterzo}.
 
 \section{Gestione singoli componenti}
 Dedicare un pagagrafo ad ogni componente in cui viene spiegato il codice che lo gestisce. Inserite prima una descrizione generale di come si gestisce un componente di quel tipo (aiutandovi con schemi o altro). Poi le configurazioni che sono state fatte sul .ioc per poterlo utilizzare (quale periferiche sono state abilitate, come sono state configurate.. mettete degli screen del .ioc). Infine inserite e spiegate le parti di codice che lo gestiscono.\\
