@@ -1,46 +1,47 @@
 \babel@toc {italian}{}\relax 
 \babel@toc {italian}{}\relax 
-\contentsline {chapter}{Introduzione}{2}{}%
-\contentsline {chapter}{\numberline {1}Descrizione del sistema}{4}{}%
-\contentsline {section}{\numberline {1.1}Controllo veicolo}{5}{}%
-\contentsline {subsection}{\numberline {1.1.1}Controllo della trazione}{5}{}%
-\contentsline {subsection}{\numberline {1.1.2}Controllo dello sterzo}{7}{}%
-\contentsline {chapter}{\numberline {2}Hardware}{8}{}%
-\contentsline {section}{\numberline {2.1}Telaio e meccaniche di supporto}{8}{}%
-\contentsline {section}{\numberline {2.2}Nucleo-144 STM32H755zi-q}{9}{}%
-\contentsline {section}{\numberline {2.3}Motore DC Reely 550er}{9}{}%
-\contentsline {section}{\numberline {2.4}Driver Motore Cytron MD10C R3}{10}{}%
-\contentsline {section}{\numberline {2.5}Encoder incrementale CUI Devices AMT102}{11}{}%
-\contentsline {section}{\numberline {2.6}Servomotore Miuzei MS24}{11}{}%
-\contentsline {section}{\numberline {2.7}Alimentazione}{12}{}%
-\contentsline {subsection}{\numberline {2.7.1}Batteria ai polimeri di litio}{12}{}%
-\contentsline {section}{\numberline {2.8}Inertial Measurement Unit}{13}{}%
-\contentsline {section}{\numberline {2.9}Radiocomando e Ricevitore Microzone}{13}{}%
-\contentsline {subsection}{\numberline {2.9.1}Funzionamento}{14}{}%
-\contentsline {subsection}{\numberline {2.9.2} Canali del ricevitore}{15}{}%
-\contentsline {section}{\numberline {2.10}Schema dei collegamenti}{16}{}%
-\contentsline {chapter}{\numberline {3}Software}{17}{}%
-\contentsline {subsection}{\numberline {3.0.1}STM32CubeIDE}{17}{}%
-\contentsline {subsection}{\numberline {3.0.2}MATLAB}{17}{}%
-\contentsline {subsection}{\numberline {3.0.3}Acquisizione dati via Terminale}{17}{}%
-\contentsline {chapter}{\numberline {4}Implementazione del firmware}{19}{}%
-\contentsline {section}{\numberline {4.1}Diagramma di flusso}{19}{}%
-\contentsline {section}{\numberline {4.2}Implementazione relativa al radiocomando}{21}{}%
-\contentsline {subsection}{\numberline {4.2.1}Impostazioni iniziali timers e calcolo preliminare di frequenza e duty}{21}{}%
-\contentsline {subsubsection}{Impostazioni timer}{21}{}%
-\contentsline {subsubsection}{Acquisizione del segnale PWM}{22}{}%
-\contentsline {subsubsection}{Gestione degli Interrupt e ottimizzazione dei Timer}{25}{}%
-\contentsline {subsubsection}{Struttura codice principale}{26}{}%
-\contentsline {subsubsection}{Operazioni di inizializzazione e avvio dei Timer}{27}{}%
-\contentsline {subsubsection}{Ciclo di esecuzione principale (Main Loop)}{28}{}%
-\contentsline {section}{\numberline {4.3}Gestione singoli componenti}{29}{}%
-\contentsline {subsection}{\numberline {4.3.1}Gestione componente1}{30}{}%
-\contentsline {subsection}{\numberline {4.3.2}Gestione componente2}{30}{}%
-\contentsline {section}{\numberline {4.4}Funzionamento complessivo}{30}{}%
-\contentsline {chapter}{\numberline {5}Test e risultati}{31}{}%
-\contentsline {subsection}{\numberline {5.0.1}Trazione}{31}{}%
-\contentsline {section}{\numberline {5.1}Test1}{33}{}%
-\contentsline {section}{\numberline {5.2}Test2}{33}{}%
-\contentsline {chapter}{Conclusioni e sviluppi futuri}{34}{}%
-\contentsline {chapter}{Appendici}{34}{}%
-\contentsline {chapter}{\numberline {A}Appendice1}{35}{}%
+\contentsline {chapter}{Introduzione}{2}{chapter*.1}%
+\contentsline {chapter}{\numberline {1}Descrizione del sistema}{4}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Controllo veicolo}{5}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Controllo della trazione}{5}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Controllo dello sterzo}{7}{subsection.1.1.2}%
+\contentsline {chapter}{\numberline {2}Hardware}{8}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Telaio e meccaniche di supporto}{8}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Nucleo-144 STM32H755zi-q}{9}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Motore DC Reely 550er}{9}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Driver Motore Cytron MD10C R3}{10}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Encoder incrementale CUI Devices AMT102}{11}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Servomotore Miuzei MS24}{11}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Alimentazione}{12}{section.2.7}%
+\contentsline {subsection}{\numberline {2.7.1}Convertitori DC-DC}{12}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.2}Batteria ai polimeri di litio}{12}{subsection.2.7.2}%
+\contentsline {section}{\numberline {2.8}Inertial Measurement Unit}{13}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Radiocomando e Ricevitore Microzone}{13}{section.2.9}%
+\contentsline {subsection}{\numberline {2.9.1}Funzionamento}{14}{subsection.2.9.1}%
+\contentsline {subsection}{\numberline {2.9.2} Canali del ricevitore}{15}{subsection.2.9.2}%
+\contentsline {section}{\numberline {2.10}Schema dei collegamenti}{16}{section.2.10}%
+\contentsline {chapter}{\numberline {3}Software}{17}{chapter.3}%
+\contentsline {subsection}{\numberline {3.0.1}STM32CubeIDE}{17}{subsection.3.0.1}%
+\contentsline {subsection}{\numberline {3.0.2}MATLAB}{17}{subsection.3.0.2}%
+\contentsline {subsection}{\numberline {3.0.3}Acquisizione dati via Terminale}{17}{subsection.3.0.3}%
+\contentsline {chapter}{\numberline {4}Implementazione del firmware}{19}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Diagramma di flusso}{19}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Implementazione relativa al radiocomando}{20}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Impostazioni iniziali timers e calcolo preliminare di frequenza e duty}{20}{subsection.4.2.1}%
+\contentsline {subsubsection}{Impostazioni timer}{20}{subsubsection*.22}%
+\contentsline {subsubsection}{Acquisizione del segnale PWM}{21}{subsubsection*.24}%
+\contentsline {subsubsection}{Gestione degli Interrupt e ottimizzazione dei Timer}{24}{subsubsection*.26}%
+\contentsline {subsubsection}{Struttura codice principale}{25}{subsubsection*.28}%
+\contentsline {subsubsection}{Operazioni di inizializzazione e avvio dei Timer}{26}{subsubsection*.29}%
+\contentsline {subsubsection}{Ciclo di esecuzione principale - Main loop}{27}{subsubsection*.30}%
+\contentsline {subsection}{\numberline {4.2.2}Controllo della trazione}{28}{subsection.4.2.2}%
+\contentsline {subsubsection}{File e strutture dati per il controllo}{28}{subsubsection*.31}%
+\contentsline {subsection}{\numberline {4.2.3}Gestione componente1}{31}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Gestione componente2}{31}{subsection.4.2.4}%
+\contentsline {section}{\numberline {4.3}Funzionamento complessivo}{31}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Test e risultati}{32}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Trazione}{32}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Sterzo}{37}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Variazione velocità lineare}{41}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Varazione velocità angolare}{42}{subsection.5.2.2}%
+\contentsline {chapter}{Conclusioni e sviluppi futuri}{46}{figure.caption.47}%

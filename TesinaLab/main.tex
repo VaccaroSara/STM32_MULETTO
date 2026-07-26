@@ -7,13 +7,14 @@
 \usepackage[margin=1.2in]{geometry}
 \usepackage[toc,page]{appendix}
 \usepackage{graphicx}
+\usepackage{hyperref}
 \usepackage{lipsum}
 \usepackage{caption}
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
 \usepackage{verbatim}
 \usepackage{colorprofiles}
-\usepackage{listings}   %<- per inserire il codice
+\usepackage{listings}   
 \usepackage{float}
 \usepackage{subcaption}
 \usepackage{amsmath}
@@ -22,6 +23,33 @@
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{xcolor} 
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.96,0.96,0.96}
+
+\lstdefinestyle{matlabstyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,              
+    numbersep=10pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,      
+    rulecolor=\color{codegray}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definecolor{custom_green}{rgb}{0,0.6,0}
@@ -203,9 +231,9 @@ La seguente relazione si basa sull'analisi dell'architettura di comunicazione vi
 \end{itemize}
 
 \noindent
-L'azione dell'utente sui comandi del radiocomando genera una sequenza di bit (segnale elettrico), che l'antenna del trasmettitore provvede a convertire in onda elettromagnetica, irradiandola nello spazio a una determinata frequenza $f$. Il modulo ricevitore, essendo sintonizzato sulla stessa frequenza, intercetta il segnale e lo riconverte nel formato elettrico. Questi dati vengono poi inoltrati al microcontrollore, il quale ha il compito di interpretare le istruzioni e comandare l'hardware per eseguire determinate azioni. 
+L'azione dell'utente sui comandi del radiocomando genera una sequenza di bit, segnale elettrico, che l'antenna del trasmettitore provvede a convertire in onda elettromagnetica, irradiandola nello spazio a una determinata frequenza $f$. Il modulo ricevitore, essendo sintonizzato sulla stessa frequenza, intercetta il segnale e lo riconverte nel formato elettrico. Questi dati vengono poi inoltrati al microcontrollore, il quale ha il compito di interpretare le istruzioni e comandare l'hardware per eseguire determinate azioni. 
 \noindent
-Per la traduzione pratica dei comandi, il microcontrollore impiega la modulazione a larghezza di impulso (PWM). Il parametro fondamentale per questa tecnica è il \textit{Duty Cycle}, calcolato come segue:
+Per la traduzione pratica dei comandi, il microcontrollore impiega la modulazione a larghezza di impulso, PWM. Il parametro fondamentale per questa tecnica è il \textit{Duty Cycle}, calcolato come segue:
 
 \begin{equation}
     \text{Duty Cycle (\%)} = \frac{T_{on}}{T_{on} + T_{off}} \times 100
@@ -238,7 +266,7 @@ Nelle prossime sezioni verranno analizzate, dal punto di vista teorico, le tecni
 utilizzate per la gestione degli attuatori presenti sul veicolo.
 
 \subsection{Controllo della trazione}
-Per il controllo della trazione, ovvero la regolazione della velocità longitudinale del veicolo, si è optato per un sistema di controllo in retroazione (\textit{closed-loop}). Tale architettura risulta fondamentale non solo per garantire il preciso inseguimento della velocità di riferimento, ma anche per compensare i disturbi esterni non prevedibili, quali le variazioni di attrito del terreno, le pendenze o le cadute di tensione della batteria durante l'erogazione di corrente.
+Per il controllo della trazione, ovvero la regolazione della velocità longitudinale del veicolo, si è optato per un sistema di controllo in retroazione. Tale architettura risulta fondamentale non solo per garantire il preciso inseguimento della velocità di riferimento, ma anche per compensare i disturbi esterni non prevedibili, quali le variazioni di attrito del terreno, le pendenze o le cadute di tensione della batteria durante l'erogazione di corrente.
 \noindent Il sistema misura costantemente la velocità reale del veicolo e la confronta con la velocità di riferimento, generando un segnale di errore $e(t)$ da minimizzare:
 
 \begin{equation}
@@ -293,7 +321,7 @@ La gestione direzionale del veicolo è affidata al sistema di sterzo delle ruote
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{images/Controllotrazione} 
+    \includegraphics[width=1.0\textwidth]{images/Controllosterzo} 
     \captionsetup{labelsep=none}
     \caption{}
     \label{fig:telaio}
@@ -408,6 +436,8 @@ algoritmi di controllo implementati sul microcontrollore.
 
 \section{Alimentazione}
 Il sistema è composto da numerose componenti, che non operano tutte alla stessa tensione.
+
+\subsection{Convertitori DC-DC}
 Per questo motivo è stato necessario utilizzare dei convertitori DC-DC  XL4015, così da garantire le alimentazioni necessarie.
 \begin{figure}[H]
     \centering
@@ -553,51 +583,43 @@ La Figura \ref{fig:schema} illustra lo schema generale dei collegamenti elettric
 
 
 \chapter{Software}
-Il presente capitolo descrive gli applicativi software impiegati per lo sviluppo del progetto. L'utilizzo di tali strumenti ha consentito la programmazione del microcontrollore e la successiva implementazione degli algoritmi di controllo necessari al funzionamento dinamico del veicolo. Inoltre, l'infrastruttura software si è rivelata un supporto fondamentale durante la fase di \textit{testing}, permettendo l'acquisizione e la visualizzazione in tempo reale dei parametri di telemetria e dei grafici di risposta del sistema.
+Il presente capitolo descrive gli applicativi software impiegati per lo sviluppo del progetto. L'utilizzo di tali strumenti ha consentito la programmazione del microcontrollore e la successiva implementazione degli algoritmi di controllo necessari al funzionamento dinamico del veicolo. Inoltre, l'infrastruttura software si è rivelata un supporto fondamentale durante la fase di testing, permettendo l'acquisizione e la visualizzazione in tempo reale dei parametri di telemetria e dei grafici di risposta del sistema.
 
 \subsection{STM32CubeIDE}
 Il firmware per la scheda STM32H755ZI-Q è stato interamente sviluppato in linguaggio C avvalendosi di STM32CubeIDE, l'ambiente di sviluppo integrato ufficiale di STMicroelectronics. Quest'ultimo mette a disposizione un'avanzata interfaccia grafica che, tramite un file di configurazione con estensione \texttt{.ioc}, permette di inizializzare l'hardware del microcontrollore in modo rapido e intuitivo. Tra le principali impostazioni gestite figurano:
 \begin{itemize}
-    \item Configurazione dell'albero di \textit{clock} del sistema;
+    \item Configurazione dell'albero di clock del sistema;
     \item Assegnazione e configurazione dei pin di input/output (GPIO);
-    \item Setup dei Timer hardware (es. per la generazione del PWM e la lettura dell'encoder);
-    \item Inizializzazione delle interfacce di comunicazione (UART, I$^2$C, SPI).
+    \item Setup dei Timer hardware, per la generazione del PWM e la lettura dell'encoder;
+    \item Inizializzazione delle interfacce di comunicazione (UART, I$^2$C).
 \end{itemize}
 
 \noindent Una volta ultimata la configurazione grafica, l'IDE provvede alla generazione automatica del codice C di base, fornendo un'architettura software pre-inizializzata su cui lo sviluppatore può procedere direttamente all'implementazione della logica di controllo.
 
 \subsection{MATLAB}
-MATLAB, ambiente di calcolo numerico e linguaggio di programmazione sviluppato da MathWorks, è uno strumento ampiamente impiegato in ambito ingegneristico per l'analisi dei dati, lo sviluppo di algoritmi, la simulazione di sistemi di controllo e l'elaborazione dei segnali. Il software si distingue per una sintassi intuitiva, un'architettura ottimizzata per la gestione di matrici e vettori, e la disponibilità di numerosi \textit{toolbox} settoriali, uniti a potenti interfacce per la visualizzazione grafica in 2D e 3D.
-All'interno di questo progetto, le funzionalità di \textit{plotting} di MATLAB sono state impiegate specificamente per l'acquisizione e la visualizzazione dei dati in tempo reale (\textit{real-time}), fornendo un prezioso supporto visivo per il monitoraggio delle variabili in gioco e la validazione del comportamento dinamico del veicolo.
+MATLAB, ambiente di calcolo numerico e linguaggio di programmazione sviluppato da MathWorks, è uno strumento ampiamente impiegato in ambito ingegneristico per l'analisi dei dati, lo sviluppo di algoritmi, la simulazione di sistemi di controllo e l'elaborazione dei segnali. 
+All'interno di questo progetto, le funzionalità di plotting di MATLAB sono state impiegate specificamente per l'acquisizione e la visualizzazione dei dati in tempo reale, fornendo un supporto visivo per il monitoraggio delle variabili in gioco e la validazione del comportamento dinamico del veicolo.
 
 \subsection{Acquisizione dati via Terminale}
-Per la cattura e la verifica preliminare dei dati telemetrici inviati dal microcontrollore, ci si è avvalsi del terminale nativo di macOS in esecuzione su un MacBook Pro M2. Sfruttando la comunicazione seriale (UART via USB) tra la scheda STM32 e il computer, l'interfaccia a riga di comando ha permesso di monitorare e registrare il flusso continuo di dati grezzi in uscita. Questa procedura si è rivelata uno step di \textit{debug} cruciale: ha consentito di verificare l'integrità, la frequenza e la corretta formattazione dei pacchetti dati (come i conteggi dell'encoder o l'errore del PID) prima che questi venissero acquisiti ed elaborati dall'ambiente MATLAB per il \textit{plotting} in tempo reale.
+Per la cattura e la verifica preliminare dei dati telemetrici inviati dal microcontrollore, ci si è avvalsi del terminale nativo di macOS. Sfruttando la comunicazione seriale (UART via USB) tra la scheda STM32 e il computer, l'interfaccia a riga di comando ha permesso di monitorare e registrare il flusso continuo di dati grezzi in uscita. Questo step ha consentito di verificare l'integrità, la frequenza e la corretta formattazione dei pacchetti dati, come i conteggi dell'encoder o l'errore del PID, prima che questi venissero acquisiti ed elaborati dall'ambiente MATLAB per il plotting in tempo reale.
 
 \chapter{Implementazione del firmware}
 In questo capitolo verranno analizzati gli algoritmi di controllo sviluppati sul microcontrollore
-dal punto di vista della loro implementazione. La trattazione sarà divisa in quattro sezioni, la
-prima fornirà una descrizione generale della struttura del codice, mentre le successive
-riguarderanno ognuna un aspetto fondamentale del moto del veicolo: ossia il controllo del
-radiocomando, della trazione e dello sterzo.
+dal punto di vista della loro implementazione. 
 \section{Diagramma di flusso}
 Si descrivere in maniera complessiva la logica del sistema attraverso il successivo
-diagramma di flusso \ref{fig:diagramma}: 
-
+diagramma: 
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth, height=0.85\textheight, keepaspectratio]{images/diagramma_di_flusso.png}
-\caption{Diagramma di flusso del codice sviluppato}
-\label{fig:diagramma}
+    \centering
+    \includegraphics[width=\textwidth, height=0.7\textheight, keepaspectratio]{images/diagramma_di_flusso.png}
+    \caption{Diagramma di flusso del codice sviluppato}
+    \label{fig:diagramma_di_flusso}
 \end{figure}
 
-Si evidenzia come il flusso di esecuzione delle istruzioni del codice inizi con una fase preliminare di setup, in cui vengono inizializzate le periferiche di sistema (Timer, PWM, UART, I2C) e configurati i componenti essenziali, ovvero l'unità inerziale (IMU BNO055) e i due regolatori PID per il controllo della trazione e dello sterzo. Successivamente, il programma entra in un 
-ciclo di esecuzione infinito, rappresentato dal blocco “while(TRUE)”. 
-All'interno di questo ciclo, il flusso operativo dipende dall'esito di due blocchi condizionali principali. Il primo verifica costantemente la ricezione di nuovi comandi impartiti tramite il radiocomando. Quando questa condizione è verificata (TRUE), i segnali grezzi in ingresso vengono elaborati attraverso un filtro FIR (Finite Impulse Response), 
-al fine di smorzarne le oscillazioni, e vengono aggiornate le rispettive variabili filtrate che rappresentano il setpoint imposto dal pilota. Nel caso in cui non vi siano nuovi dati (FALSE), l'algoritmo salta l'elaborazione del filtro.
-Il flusso prosegue poi verso la seconda condizione, che rappresenta il cuore del sistema di controllo in tempo reale: la verifica della variabile temporale “flag\_10ms”. Se tale variabile assume il valore 1 (TRUE), significa che è trascorso il periodo di campionamento prefissato di 10 millisecondi. In questa occorrenza, il sistema esegue in stretta 
-sequenza le operazioni necessarie per il movimento del veicolo: procede prima con la lettura della velocità attuale dall'encoder, il calcolo degli RPM target e l'esecuzione del controllo PID della trazione; successivamente effettua la lettura del tasso di imbardata reale dall'IMU per alimentare il controllo PID dello sterzo. 
-Al termine di queste operazioni, o nel caso in cui il periodo di 10ms non sia ancora trascorso (FALSE), il flusso ritorna all'inizio del ciclo per ripetere le verifiche. Tutti gli algoritmi utilizzati sono stati sviluppati mediante linguaggio C e l’ambiente di sviluppo STM32CubeIDE.
+\noindent Si evidenzia come il flusso di esecuzione delle istruzioni del codice inizi con una fase preli-
+minare di setup, in cui vengono inizializzate le periferiche di sistema e configurati i componenti essenziali, ovvero l’IMU e i due regolatori PID per il controllo della trazione e dello sterzo. Successivamente, il programma entra in un ciclo di esecuzione infinito, all’interno di questo ciclo, il flusso operativo dipende dall’esito di due blocchi condizionali principali. Il primo verifica costantemente la ricezione di nuovi comandi impartiti tramite il radiocomando: quando questa condizione è verificata, i segnali grezzi in ingresso vengono elaborati attraverso un filtro FIR (Finite Impulse Response), al fine di smorzarne le oscillazioni. Nel caso in cui non vi siano nuovi dati, l’algoritmo salta l’elaborazione del
+filtro. Il flusso prosegue poi verso la seconda condizione, la verifica della variabile temporale “flag 10ms”: se tale variabile assume il valore 1, significa che è trascorso il periodo di campionamento prefissato di 10 millisecondi. In questa occorrenza, il sistema esegue in stretta sequenza le operazioni necessarie per il movimento del veicolo. Al termine di queste operazioni, o nel caso in cui il periodo di 10ms non sia ancora trascorso, il flusso ritorna all’inizio del ciclo per ripetere le verifiche. 
 
 \section{Implementazione relativa al radiocomando}
 L'implementazione relativa al radiocomando rappresenta il fulcro di questa relazione:
@@ -614,14 +636,11 @@ InputCapture che consente di studiare un segnale preso come input, generato appu
 ricevitore. Tramite la configurazione nel file “.ioc” di questo interrupt, è necessario specificare
 la “Polarity Section”, ovvero a quale evento del segnale si è interessati: “Rising Edge” (fronte
 di salita), “Falling Edge” (fronte di discesa), “Both Edges” (fronte di salita e di discesa).
-Grazie a quanto appreso da relazioni precedenti in cui si era utilizzato un oscilloscopio, si è a
-conoscenza del fatto che tutti i segnali sono sincronizzati tra loro, ovvero hanno stessa
-frequenza e non sono sfasati tra loro. Questa osservazione sarà utile in un secondo momento.
 
 \subsubsection{Impostazioni timer}
 I timer permettono di misurare il tempo e quindi di ottenere i valori desiderati dalla ricevente. Per l'utilizzo dell'Input Capture (sfruttando i canali PA0 e PA3 del TIM5) si è deciso di utilizzare un timer con un clock di 64 MHz, che viene diviso dal "Prescaler". Poiché a livello hardware il microcontrollore somma sempre 1 al valore del registro, per ottenere un clock effettivo di 1 MHz il parametro è stato settato a 63, calcolato mediante la formula $PSC = \frac{64.000.000}{1.000.000} - 1$.
 
-Inoltre, poiché la frequenza minima leggibile è data da $\frac{TIMCLOCK}{COUNTERPERIOD}$, si è deciso di lasciare il "Counter Period" al massimo, ovvero 0xffffffff (corrispondente a 4294967295) essendo il TIM5 un timer a 32 bit.
+\noindent Inoltre, poiché la frequenza minima leggibile è data da $\frac{TIMCLOCK}{COUNTERPERIOD}$, si è deciso di lasciare il "Counter Period" al massimo, ovvero 0xffffffff (corrispondente a 4294967295) essendo il TIM5 un timer a 32 bit.
     \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth,keepaspectratio]{images/impostazioni_timer.png}
@@ -631,7 +650,7 @@ Inoltre, poiché la frequenza minima leggibile è data da $\frac{TIMCLOCK}{COUNT
 \subsubsection{Acquisizione del segnale PWM}
 Il segnale PWM in uscita dal ricevitore del radiocomando presenta una frequenza fissa (tipicamente 50 Hz, pari a un periodo di 20 ms). Pertanto, il calcolo della frequenza risulta irrilevante ai fini del controllo dinamico del veicolo. L'informazione vitale legata al comando impartito dal pilota risiede unicamente nella larghezza dell'impulso alto ($T_{on}$), che varia proporzionalmente al movimento delle levette in un intervallo tipicamente compreso tra 1000 $\mu$s e 2000 $\mu$s.
 
-Per acquisire direttamente questo dato vitale, si è configurato il parametro ``Polarity Selection'' su ``Both Edges'' all'interno dell'ambiente di sviluppo, discostandosi da un approccio basato sul solo fronte di salita. 
+\noindent Per acquisire direttamente questo dato vitale, si è configurato il parametro ``Polarity Selection'' su ``Both Edges'' all'interno dell'ambiente di sviluppo, discostandosi da un approccio basato sul solo fronte di salita. 
 
 \begin{figure}[H]
 \centering
@@ -640,9 +659,9 @@ Per acquisire direttamente questo dato vitale, si è configurato il parametro ``
 \label{fig:polarity_both}
 \end{figure}
 
-La logica di acquisizione è gestita all'interno della funzione di callback \texttt{HAL\_TIM\_IC\_CaptureCallback}. Tramite l'ausilio di flag di stato (come \texttt{Is\_First\_Captured\_Steering}), il sistema salva il valore del contatore hardware al verificarsi del fronte di salita, commutando contestualmente la sensibilità del canale sul fronte opposto. Al successivo fronte di discesa, il contatore viene letto nuovamente per poterne calcolare la differenza temporale. 
+\noindent La logica di acquisizione è gestita all'interno della funzione di callback \texttt{HAL\_TIM\_IC\_CaptureCallback}. Tramite l'ausilio di flag di stato (come \texttt{Is\_First\_Captured\_Steering}), il sistema salva il valore del contatore hardware al verificarsi del fronte di salita, commutando contestualmente la sensibilità del canale sul fronte opposto. Al successivo fronte di discesa, il contatore viene letto nuovamente per poterne calcolare la differenza temporale. 
 
-Poiché il timer opera con un clock effettivo di 1 MHz, la differenza algebrica tra le due letture restituisce la durata dell'impulso espressa direttamente in microsecondi. Tale valore viene salvato nelle variabili globali (\texttt{steering\_us} e \texttt{throttle\_us}) per essere impiegato come setpoint, a patto che superi il controllo di sicurezza implementato per scartare letture anomale esterne al range nominale (600--2400 $\mu$s).
+\noindent Poiché il timer opera con un clock effettivo di 1 MHz, la differenza algebrica tra le due letture restituisce la durata dell'impulso espressa direttamente in microsecondi. Tale valore viene salvato nelle variabili globali (\texttt{steering\_us} e \texttt{throttle\_us}) per essere impiegato come setpoint, a patto che superi il controllo di sicurezza implementato per scartare letture anomale esterne al range nominale (600--2400 $\mu$s).
 
 \begin{lstlisting}[language=Cpp, caption="Codice per la lettura del segnale PWM tramite Input Capture"]
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
@@ -718,7 +737,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
 A differenza delle classiche implementazioni hardware che prevedono l'azzeramento forzato del contatore del timer ad ogni fronte di salita (metodologia che impedisce la lettura simultanea di più canali e costringe all'utilizzo di molteplici timer), in questo progetto si è optato per un approccio software non distruttivo.
 
-Come si evince dalla configurazione di sistema in STM32CubeMX (Figura \ref{fig:tim5_configurazione}), il timer dedicato alla decodifica (TIM5) è attivamente impiegato sui canali 1 e 4 in modalità \textit{Input Capture direct mode}, ma il suo contatore viene fatto avanzare in modo continuo (fino al suo limite massimo a 32 bit, pari a 4294967295) senza mai subire reset forzati. All'attivazione dell'interrupt, la \textit{callback} si limita a "fotografare" il valore assoluto del registro (tramite la funzione \verb|HAL_TIM_ReadCapturedValue|).
+\noindent Come si evince dalla configurazione di sistema in STM32CubeMX (Figura \ref{fig:tim5_configurazione}), il timer dedicato alla decodifica (TIM5) è attivamente impiegato sui canali 1 e 4 in modalità \textit{Input Capture direct mode}, ma il suo contatore viene fatto avanzare in modo continuo (fino al suo limite massimo a 32 bit, pari a 4294967295) senza mai subire reset forzati. All'attivazione dell'interrupt, la \textit{callback} si limita a "fotografare" il valore assoluto del registro (tramite la funzione \verb|HAL_TIM_ReadCapturedValue|).
 
 \begin{figure}[H]
 \centering
@@ -727,13 +746,13 @@ Come si evince dalla configurazione di sistema in STM32CubeMX (Figura \ref{fig:t
 \label{fig:tim5_configurazione}
 \end{figure}
 
-La durata dell'impulso viene così ricavata puramente per differenza matematica tra il timestamp di discesa e quello di salita. Per prevenire errori di calcolo nel raro caso in cui avvenga un overflow del timer proprio durante un impulso, l'algoritmo include un controllo condizionale che compensa il riavvio del conteggio sommano il complemento a due del limite massimo.
+\noindent La durata dell'impulso viene così ricavata puramente per differenza matematica tra il timestamp di discesa e quello di salita. Per prevenire errori di calcolo nel raro caso in cui avvenga un overflow del timer proprio durante un impulso, l'algoritmo include un controllo condizionale che compensa il riavvio del conteggio sommano il complemento a due del limite massimo.
 
 Questa architettura software garantisce numerosi vantaggi:
 \begin{itemize}
     \item \textbf{Ottimizzazione delle risorse:} consente di gestire in modo totalmente asincrono e indipendente l'acquisizione dei comandi Xa e Xb utilizzando un unico timer (TIM5) e due soli canali, riducendo il carico computazionale e liberando le restanti periferiche del microcontrollore.
     \item \textbf{Assenza di interferenze:} poiché il contatore principale non viene mai azzerato, l'arrivo di un interrupt sul canale dedicato a Xb non corrompe in alcun modo il conteggio temporale in corso sul canale di Xa, garantendo una precisione assoluta su entrambi i segnali in ingresso.
-    \item \textbf{Flessibilità della polarità:} la commutazione dinamica della polarità (da \textit{Falling} a \textit{Rising} e viceversa) viene gestita direttamente all'interno della singola routine di interrupt.
+    \item \textbf{Flessibilità della polarità:} la commutazione dinamica della polarità, da Falling a Rising e viceversa, viene gestita direttamente all'interno della singola routine di interrupt.
 \end{itemize}
 
 \subsubsection{Struttura codice principale}
@@ -760,7 +779,7 @@ typedef struct VehicleData {
 } vehicleData;
     \end{lstlisting}
 
-    \item \textbf{Stabilizzazione e Zona Morta (Dead Band)}\\
+    \item \textbf{Stabilizzazione e zona morta}\\
     I potenziometri fisici presenti sui radiocomandi commerciali sono intrinsecamente soggetti a lievi fluttuazioni elettriche e rumore meccanico. Se non filtrati, tali disturbi farebbero percepire al microcontrollore un comando variabile anche quando le levette sono a riposo (centrate idealmente a 1500 $\mu$s), causando impercettibili movimenti dei motori.
     Per ovviare a questo problema, è stata implementata via software una "zona morta" di sicurezza. Come visibile nel codice, qualsiasi variazione del segnale di trazione (\textbf{Xa}) e di sterzo (\textbf{Xb}) che ricada nell'intorno del punto di neutro viene forzatamente ignorata, garantendo il perfetto arresto del veicolo e l'allineamento delle ruote anteriori.
 
@@ -789,7 +808,7 @@ if (steering_filtered > 1460.0f && steering_filtered < 1560.0f) {
 }
     \end{lstlisting}
 
-    \item \textbf{Ciclo Infinito (Main Loop)}\\
+    \item \textbf{Main Loop}\\
     Tutte queste operazioni avvengono costantemente all'interno del ciclo infinito \verb|while(1)|. Qui i segnali grezzi intercettati dagli interrupt vengono passati prima attraverso un filtro FIR per regolarizzarne l'andamento, poi limitati dalle zone morte descritte in precedenza e infine mappati nei riferimenti (setpoint) da fornire agli anelli di controllo PID.
 \end{enumerate}
 
@@ -811,11 +830,11 @@ tune_PID(&pid_steering, KP_STEERING, KI_STEERING, 0);
 Questo paradigma architetturale snellisce il codice sorgente e riduce i tempi di accensione del sistema (\textit{boot}), scongiurando inoltre il rischio di blocchi critici (\textit{deadlock}) nel caso in cui il radiocomando sia spento al momento dell'accensione del microcontrollore. Essendo privo di attese bloccanti, il flusso principale continua la sua esecuzione naturale, inizializzando i sensori (come l'IMU via I$^2$C) e posizionando le variabili di sicurezza nelle relative zone morte.
 Ciò garantisce che il veicolo venga mantenuto in uno stato stazionario sicuro fino all'effettiva ricezione del primo pacchetto dati valido.
 
-\subsubsection{Ciclo di esecuzione principale (Main Loop)}
+\subsubsection{Ciclo di esecuzione principale - Main loop}
 Una volta concluse le operazioni di inizializzazione e avviate le periferiche, il firmware entra nel ciclo di esecuzione infinito \verb|while(1)|. La struttura di questo ciclo è stata progettata per separare logicamente l'acquisizione asincrona dei comandi radio dall'anello di controllo deterministico del veicolo.
 Il ciclo si divide in due macro-blocchi fondamentali:
 \begin{enumerate}
-    \item \textbf{Acquisizione e validazione comandi:} non appena i flag \verb|new_rc_throttle| e \verb|new_rc_steering| segnalano la disponibilità di un nuovo dato temporale (Xa e Xb), il sistema provvede a validare e pre-filtrare i segnali grezzi, salvandoli nelle variabili globali di stato.
+    \item \textbf{Acquisizione e validazione comandi:} non appena i flag \verb|new_rc_throttle| e \\ \verb|new_rc_steering| segnalano la disponibilità di un nuovo dato temporale (Xa e Xb), il sistema provvede a validare e pre-filtrare i segnali grezzi, salvandoli nelle variabili globali di stato.
     \item \textbf{Anello di controllo (10 ms):} sfruttando un flag hardware (\verb|Flag_10ms|) generato dall'interrupt del TIM6, il sistema esegue il calcolo delle leggi di controllo a una frequenza fissa e predicibile (100 Hz). In questa fase vengono acquisiti i feedback dai sensori (Encoder e IMU), vengono generati i setpoint e calcolate le azioni di controllo PID.
 \end{enumerate}
 Di seguito è riportata la struttura architetturale del ciclo principale:
@@ -857,54 +876,102 @@ while (1)
 L'implementazione matematica dei filtri di validazione e le logiche di mappatura dei segnali Xa e Xb nei rispettivi setpoint fisici verranno analizzate in dettaglio nei successivi capitoli, 
 dedicati al \textbf{Controllo della Trazione} e al \textbf{Controllo dello Sterzo}.
 
-\section{Gestione singoli componenti}
-Dedicare un pagagrafo ad ogni componente in cui viene spiegato il codice che lo gestisce. Inserite prima una descrizione generale di come si gestisce un componente di quel tipo (aiutandovi con schemi o altro). Poi le configurazioni che sono state fatte sul .ioc per poterlo utilizzare (quale periferiche sono state abilitate, come sono state configurate.. mettete degli screen del .ioc). Infine inserite e spiegate le parti di codice che lo gestiscono.\\
-\newline
-\textcolor{red}{NOTA per il codice}: per rendere il codice modulare e riutilizzabile è buona prassi non caricare troppo il main ma creare una libreria per ogni componente. Quindi il componente1 avrà un header file "componente1.h" e un source file "componente1.c", nel source file sono implementate le funzioni che gestiscono il componente, nell'header file ci sono i prototipi di tali funzioni in modo che esse possano essere usate nel main includendolo.\\
-\newline
-\textcolor{red}{NOTA per il codice}: non inserire mai nel codice dei parametri numerici senza contesto ma renderli delle costanti definite (usando la direttiva \%define). Se sono delle costanti relative ad uno specifico componente vanno inserite nel relativo header file.\\
-\newline
-\textcolor{red}{NOTA per il codice}: per inserire il codice, anziché utilizzare screenshot utilizzate i seguenti comandi.\\
-Per codice scritto in latex (con linguaggio Python):
-\begin{lstlisting}[language=Python, caption="Codice in Python"]
-import numpy as np
-    
-def incmatrix(genl1,genl2):
-    m = len(genl1) # The length of the first array
-    n = len(genl2) # The length of the second array
-    sum = 0
-    
-    # Compute 
-    for i in range(0,n):
-        for j in range(0, m):
-            sum += genl1[n]*genl2[m]
+\subsection{Controllo della trazione}
+\noindent In merito al controllo della trazione si è deciso di utilizzare un controllo a catena chiusa: si utilizzano come feedback le letture provenienti dall’encoder correggendo i risultati utilizzando un singolo controllore PID per regolare l'intensità della velocità, mentre il senso di marcia viene gestito separatamente tramite un apposito pin digitale. Il riferimento viene dato dal radiocomando tramite la levetta a destra. La velocità del veicolo aumenterà all’aumentare della “posizione” della levetta, così come la vettura andrà in retromarcia spingendo la leva verso il basso. All’interno del codice sono stati utilizzati diversi file di intestazione e file sorgente, per ottenere un codice modulare: al fine di svolgere i test in modo più preciso e in sicurezza, il limite massimo di potenza inviata al motore (Duty Cycle del segnale PWM) è stato bloccato al 20%, e per i test di base è stata impostata una velocità di riferimento di 5 cm/s, all'interno di un sistema calibrato per mappare velocità fino a 1 m/s. 
 
-    # Print
-    print("The sum is %2d" %(sum))   
-    
-    return M
-\end{lstlisting}
-Per codice richiamato da file (con linguaggio C):
+\subsubsection{File e strutture dati per il controllo}
+In questa sezione si riportano i file, le definizioni e le strutture utilizzate per il controllo della trazione e dello sterzo, commentandone le costanti e i prototipi di funzione.
 
-\lstinputlisting[language=Cpp, firstline=4, lastline=8, caption="Codice in C"]{codefiles/example_code.cpp}
+\vspace{0.4cm}
+\noindent\textbf{DC\_motor.h} \\
+\noindent Il modulo relativo al motore DC racchiude le definizioni e le funzioni necessarie per il pilotaggio dell'attuatore. Nello specifico, all'interno del codice vengono definiti e implementati i seguenti elementi:
 
-Funziona anche per codice MATLAB:
-\begin{lstlisting}[language=MATLABc, caption="Codice in MATLAB"]
-%% PREPARE WORKSPACE
-close all
-clearvars
-clc
+\begin{lstlisting}[language=Cpp, caption={DC\_motor.h}]
+    #ifndef INC_DC_MOTOR_H_
+#define INC_DC_MOTOR_H_
 
-%% OPERATIONS
-sayhello;
+#include <PID.h>
+#include <main.h>
+#include "math.h"
 
-%% FUNCTIONS
-function sayhello
-    fprintf("Hello world!");
-end
 
+#define V_MAX 7.5
+#define V_MIN 1.0
+#define GIRI_MIN_CONV 0.0006283185
+
+float DegreeSec2RPM(float);
+
+float Voltage2Duty(float);
+uint8_t Ref2Direction(float);
+void set_PWM_and_dir(uint32_t, uint8_t);
+#endif /* INC_DC_MOTOR_H_ */
 \end{lstlisting}
 
+\begin{itemize}
+    \item \textbf{\texttt{V\_MAX}}: definisce la tensione massima a cui il motore può lavorare, utilizzata come parametro di riferimento per il calcolo della percentuale di potenza da erogare.
+    \item \textbf{\texttt{DegreeSec2RPM}}: è una funzione matematica adibita alla conversione cinematica dei valori fisici; trasforma la velocità angolare, calcolata in gradi al secondo, nella corrispondente velocità in RPM (giri al minuto).
+    \item \textbf{\texttt{Voltage2Duty}}: rappresenta la funzione di conversione che trasforma lo sforzo di controllo, in Volt, nella rispettiva percentuale di Duty Cycle del segnale PWM.
+    \item \textbf{\texttt{set\_PWM\_and\_dir}}: è la funzione operativa che si occupa di inviare fisicamente il segnale PWM calcolato al timer hardware del microcontrollore e di commutare lo stato del pin digitale responsabile per la direzione di marcia.
+\end{itemize}
+
+\noindent\textbf{Parametri dell'encoder} \\
+Per quanto riguarda l'acquisizione della velocità e dello spazio percorso, il sistema fa affidamento sui parametri fisici dell'encoder. A livello di architettura del software, si è scelto di non mantenere un file di intestazione isolato per questo sensore, le sue costanti fondamentali sono state invece accorpate all'interno del file \texttt{DC\_motor.h}. \\
+
+\begin{lstlisting}[language=Cpp, caption={DC\_motor.h}]
+//ENCODER 
+#define ENCODER_PPR 2048 
+#define GEARBOX_RATIO 1 
+#define ENCODER_COUNTING_MODE 4 
+\end{lstlisting}
+
+\begin{itemize}
+    \item \textbf{\texttt{ENCODER\_PPR}} (Pulses Per Revolution): indica la risoluzione nominale del sensore, il quale genera 2048 impulsi per ogni giro completo del proprio albero. 
+    \item \textbf{\texttt{GEARBOX\_RATIO}}: rappresenta il rapporto di riduzione della trasmissione meccanica. Essendo il valore impostato a 1, si assume che l'albero dell'encoder e l'albero motore ruotino alla medesima velocità. 
+    \item \textbf{\texttt{ENCODER\_COUNTING\_MODE}}: specifica la modalità di lettura configurata sul Timer hardware. Il valore 4 indica una lettura in quadratura su tutti i fronti (salita e discesa) per entrambi i canali (A e B), garantendo la massima risoluzione possibile nella stima del delta angolare. 
+\end{itemize}
+
+\noindent\textbf{Struttura dati dello stato del veicolo} \\
+La struttura dati utilizzata per la memorizzazione dello stato della vettura è dichiarata e gestita integralmente all'interno del file main.c. Al suo interno vengono raggruppate tutte le variabili di stato e le letture provenienti dai sensori di bordo necessarie al ciclo di controllo. La struttura è divisa logicamente in due blocchi operativi principali: \\
+
+\begin{lstlisting}[language=Cpp, caption={Main.c}]
+typedef struct VehicleData {
+ //Trazione 
+int counts; 
+int ref_count; 
+int delta_count; 
+float delta_angle_deg; // [deg] 
+float motor_speed_deg_sec; // [deg/s] 
+float motor_speed_RPM; // RPM 
+float linear_speed_m_s; // [m/s] 
+float motor_speed_ref_RPM; // RPM 
+uint8_t motor_direction_ref; //Sterzo 
+double yaw_rate_rad_sec; // [rad/s] 
+double yaw_rate_deg_sec; // [deg/s] 
+double yaw_rate_ref_rad_sec; // [rad/s] 
+} vehicleData; 
+\end{lstlisting}
+
+\noindent\textbf{Parametri di trazione}
+\begin{itemize}
+    \item \textbf{\texttt{counts}}: memorizza i conteggi grezzi correnti letti dal registro del Timer hardware collegato all'encoder (TIM4 $\rightarrow$ CNT). 
+    \item \textbf{\texttt{ref\_count}}: rappresenta un valore di conteggio di riferimento fisso (impostato a metà del periodo del timer) utilizzato ad ogni ciclo per evitare problemi di overflow o underflow durante la lettura.
+    \item \textbf{\texttt{delta\_count}}: indica la variazione netta dei conteggi (gli impulsi dell'encoder) avvenuta nell'ultimo ciclo di campionamento rispetto al riferimento.
+    \item \textbf{\texttt{delta\_angle\_deg}}: rappresenta lo spostamento angolare del rotore, calcolato e convertito in gradi, avvenuto nell'intervallo di campionamento.
+    \item \textbf{\texttt{motor\_speed\_deg\_sec}}: è la velocità angolare attuale del motore, calcolata cinematicamente ed espressa in gradi al secondo.
+    \item \textbf{\texttt{motor\_speed\_RPM}}: è la velocità di rotazione del motore convertita in RPM (Giri al Minuto); questa è la variabile di feedback (realtà) mandata in pasto al controllore PID della trazione. 
+    \item \textbf{\texttt{linear\_speed\_m\_s}}: memorizza la velocità lineare effettiva del veicolo su strada, espressa direttamente in m/s (metri al secondo). 
+    \item \textbf{\texttt{motor\_speed\_ref\_RPM}}: indica il setpoint, ovvero la velocità di riferimento in RPM richiesta dal pilota, derivata dalla mappatura proporzionale del segnale del radiocomando. 
+    \item \textbf{\texttt{motor\_direction\_ref}}: è una variabile intera (0 o 1) che memorizza il verso di rotazione richiesto per l'attuatore, definendo quindi se il veicolo deve procedere in marcia avanti o in retromarcia.
+\end{itemize}
+
+\vspace{0.4cm}
+
+\noindent\textbf{Parametri di sterzo e cinematica}
+\begin{itemize}
+    \item \textbf{\texttt{yaw\_rate\_rad\_sec}}: memorizza il tasso di imbardata reale (la velocità di rotazione del veicolo attorno al proprio asse verticale $z$) acquisito tramite il filtro FIR dal giroscopio dell'unità IMU (BNO055), espresso in radianti al secondo. 
+    \item \textbf{\texttt{yaw\_rate\_deg\_sec}}: rappresenta il medesimo dato di imbardata del veicolo, ma calcolato ed espresso in gradi al secondo.
+    \item \textbf{\texttt{yaw\_rate\_ref\_rad\_sec}}: memorizza la velocità di imbardata di riferimento, che corrisponde all'obiettivo di rotazione direzionale richiesto dal segnale del radiocomando.
+\end{itemize}
 
 \subsection{Gestione componente1}
 
@@ -916,11 +983,11 @@ Dopo aver spiegato il codice che gestisce i singoli componenti, inserire e comme
 \chapter{Test e risultati}
 La presente sezione è dedicata all'analisi sperimentale e alla validazione sul campo degli algoritmi di controllo implementati sul microcontrollore. Al fine di valutare in modo completo e rigoroso le performance dinamiche del prototipo, si avranno due macro-aree fondamentali. Dapprima verranno esposti e discussi i risultati relativi al controllo della trazione e, successivamente, l'attenzione si sposterà sulla validazione del controllo direzionale dello sterzo, esaminando la risposta del sistema ai riferimenti di imbardata, i limiti fisici della cinematica del veicolo e l'impatto del filtraggio digitale sull'affidabilità della telemetria. 
 
-\subsection{Trazione}
-Il controllo della velocità longitudinale è stato affidato a un regolatore di tipo PI (Proporzionale-Integrale), i cui parametri sono stati definiti empiricamente e affinati sul campo per garantire una risposta rapida e priva di errore a regime.
-Le costanti di guadagno ottimali, il tempo di campionamento dell'anello di controllo e i limiti di saturazione simmetrica sono stati definiti all'interno del firmware come segue:
+\section{Trazione}
+\noindent Il controllo della velocità longitudinale è stato affidato a un regolatore di tipo PI (Proporzionale-Integrale), i cui parametri sono stati definiti empiricamente e affinati sul campo per garantire una risposta rapida e priva di errore a regime.
+\noindent Le costanti di guadagno ottimali, il tempo di campionamento dell'anello di controllo e i limiti di saturazione simmetrica sono stati definiti all'interno del firmware come segue:
 
-\begin{lstlisting}[language=Cpp, caption=""]
+\begin{lstlisting}[language=Cpp, caption="Configuration.h"]
 //TRACTION PID
 #define TRACTION_SAMPLING_TIME 0.01 //[s]
 #define MAX_U_TRACTION 2.6 // [V]
@@ -929,9 +996,9 @@ Le costanti di guadagno ottimali, il tempo di campionamento dell'anello di contr
 #define KI_TRACTION 0.002
 \end{lstlisting}
 
-Per l'analisi delle performance del sistema e l'estrapolazione dei risultati visivi, i dati sono stati acquisiti via seriale utilizzando anche il terminale per monitorare e validare preliminarmente il corretto flusso delle stringhe di testo in uscita dal microcontrollore. L'acquisizione definitiva e il tracciamento in tempo reale sono stati eseguiti su MATLAB con il seguente script:
+\noindent Per l'analisi delle performance del sistema e l'estrapolazione dei risultati visivi, i dati sono stati acquisiti via seriale utilizzando anche il terminale per monitorare e validare preliminarmente il corretto flusso delle stringhe di testo in uscita dal microcontrollore. L'acquisizione definitiva e il tracciamento in tempo reale sono stati eseguiti su MATLAB con il seguente script:
 
-\begin{lstlisting}[language=Matlab, caption={Codice in MATLAB}, basicstyle=\ttfamily\small, breaklines=true]
+\begin{lstlisting}[language=Matlab, style=matlabstyle, caption={Codice in MATLAB: controllo trazione}]
 % 1. Configurazione Porta Seriale
 port_name = '/dev/tty.usbmodem1203'; 
 baud_rate = 115200;
@@ -997,29 +1064,216 @@ fprintf('MSE Finale: %.6f\n', mse_attuale);
 clear s;
 \end{lstlisting}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/grafico.JPG}
-\caption{Esempio di grafico}
-\label{fig:grafico}
-\end{figure}
-\section{Test1}
-Per ogni test riportate: cosa state testando, in che condizioni si è svolto il test, riferimenti a video/file di log che consegnate insieme a relazione e codice, grafici dei risultati, commento dei risultati.
+\noindent Il codice appena illustrato si occupa di inizializzare la comunicazione seriale configurando la porta dedicata e il corretto baud rate. Successivamente, predispone un grafico dinamico e, tramite un ciclo iterativo, legge i pacchetti in arrivo isolando i valori della velocità di riferimento e di quella reale. Oltre a tracciare le due curve in tempo reale, lo script calcola e aggiorna dinamicamente a schermo il valore dell'Errore Quadratico Medio (MSE), permettendo di valutare istantaneamente la bontà dell'inseguimento del setpoint, per poi arrestarsi automaticamente al raggiungimento del limite prefissato di campioni.
+\noindent La taratura del controllore è stata ottimizzata specificamente per una velocità di riferimento di 1 m/s, di cui è stata analizzata la risposta a gradino. Il grafico ottenuto è il seguente:
 
-\section{Test2}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/TrazioneUff_kp0.006ki0.002} 
+    \caption{Risposta a gradino del controllo di trazione a 1.0 m/s.}
+    \label{fig:trazione04}
+\end{figure}
+
+\noindent Dal grafico è possibile osservare il confronto tra la velocità desiderata (curva rossa) e la velocità reale misurata tramite l'encoder (curva blu). Il sistema mostra un tempo di salita (\textit{rise time}) estremamente reattivo: il veicolo raggiunge il valore di regime in circa 15-20 campioni, corrispondenti a soli 150-200 ms. Una volta raggiunto il \textit{setpoint}, il valore medio della velocità reale si allinea in modo accurato al riferimento. Sono tuttavia evidenti delle fluttuazioni ad alta frequenza attorno al valore nominale, tali oscillazioni non sono sintomo di instabilità del controllore, ma sono fisiologicamente imputabili al rumore intrinseco nella derivazione numerica della posizione dell'encoder per il calcolo della velocità, unito alle naturali tolleranze e ai giochi meccanici della trasmissione del veicolo. Le prestazioni complessive di inseguimento sono quantificate dall'Errore Quadratico Medio (MSE), che per questo test risulta contenuto a un valore di $0.148250$. 
+
+\noindent Infine, per verificare la robustezza e la stabilità del regolatore al variare delle condizioni operative, il PID tarato sul riferimento di $1$ m/s è stato collaudato anche a velocità inferiori. Nello specifico, sono stati condotti test a velocità di $0.9$, $0.8$, $0.6$ e $0.4$ m/s. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Trazione09} 
+    \caption{Risposta a gradino del controllo di trazione a 0.9 m/s}
+    \label{fig:trazione09}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Trazione08} 
+    \caption{Risposta a gradino del controllo di trazione a 0.8 m/s}
+    \label{fig:trazione08}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Trazione06} 
+    \caption{Risposta a gradino del controllo di trazione a 0.6 m/s}
+    \label{fig:trazione06}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Trazione04} 
+    \caption{Risposta a gradino del controllo di trazione a 0.4 m/s}
+    \label{fig:trazione04}
+\end{figure}
+
+\noindent L'analisi dei grafici relativi ai test a velocità decrescenti conferma un comportamento coerente e robusto del controllore PI. In tutte le prove, il tempo di salita (\textit{rise time}) si mantiene pressoché costante e rapido, garantendo l'inseguimento del riferimento in circa 150-200 ms senza evidenziare sovraelongazioni critiche. A regime, il valore medio della velocità reale si attesta fedelmente sul setpoint desiderato, dimostrando l'efficacia dell'azione integrale nell'annullare l'errore statico. È possibile notare come le oscillazioni ad alta frequenza mantengano un'ampiezza paragonabile e costante in tutti i regimi di marcia analizzati, tale invarianza avvalora l'ipotesi che le fluttuazioni non siano imputabili a un'instabilità dell'algoritmo di controllo, bensì al rumore di quantizzazione intrinseco nella lettura dell'encoder e alle tolleranze meccaniche della trasmissione. I valori dell'Errore Quadratico Medio (MSE), registrati in tempo reale durante i test, si mantengono contenuti in ogni scenario, confermando la validità e la scalabilità della taratura effettuata alla velocità nominale di 1 m/s.
+
+\section{Sterzo}
+Per quanto riguarda il controllo direzionale dello sterzo, la sintesi del controllore e la taratura dei parametri sono state condotte per via sperimentale. Nello specifico, i test per il dimensionamento del regolatore PI sono stati eseguiti mantenendo il veicolo a una velocità longitudinale costante di 1 m/s e imponendo un riferimento per la velocità di imbardata (yaw rate) pari a 1 rad/s.
+Le costanti di guadagno ottimali individuate, il tempo di campionamento dell'anello di controllo e i limiti di saturazione dell'azione di controllo (impostati tra -20° e +20° per rispettare i vincoli meccanici del servomotore ed evitare forzature strutturali) sono stati definiti all'interno del firmware come segue:
+
+\begin{lstlisting}[language=Cpp, caption="Configuration.h"]
+//STEERING PID
+#define STEERING_SAMPLING_TIME 0.01 //[s]
+#define MAX_U_STEERING 20
+#define MIN_U_STEERING -20
+#define KP_STEERING 120
+#define KI_STEERING 60
+\end{lstlisting}
+
+\noindent Per la validazione visiva e l'estrapolazione dei risultati, i dati telemetrici sono stati acquisiti in tempo reale via seriale, salvati all'interno di un file di testo (.txt) e infine rielaborati utilizzando il seguente script MATLAB:
+
+\begin{lstlisting}[language=Matlab, style=matlabstyle, caption={Codice in MATLAB: controllo sterzo}]
+% 1. Legge i dati dal file
+dati = readmatrix(['sterzo120_60_FIR3_IMU']);
+
+% 2. Separa le colonne
+setpoint = dati(:, 1); % Prima colonna: comando dal radiocomando
+imu_reale = dati(:, 2); % Seconda colonna: la realta letta dal sensore BNO055
+
+% 3. Crea l'asse del tempo 
+tempo = (0:length(setpoint)-1) * 0.01; 
+
+% 4. Disegna il grafico
+figure;
+plot(tempo, setpoint, 'r--', 'LineWidth', 2); hold on;
+plot(tempo, imu_reale, 'b-', 'LineWidth', 2);
+
+% 5. Plot
+grid on;
+title('Analisi Risposta Dinamica FIR IMU: Setpoint vs IMU');
+xlabel('Tempo (secondi)');
+ylabel('Yaw Rate (rad/s)');
+legend('Comando (Riferimento)', 'Realta (IMU)', 'Location', 'best');
+\end{lstlisting}
+
+\noindent Un aspetto cruciale nell'implementazione di questo anello di controllo è stato il filtraggio del segnale letto dal sensore inerziale (IMU), intrinsecamente affetto da rumore ad alta frequenza. Per ottimizzare la pulizia del segnale, sono state condotte due diverse prove sperimentali sul filtro digitale: la prima configurazione prevedeva l'utilizzo di un doppio filtro FIR posto in cascata sulla linea di retroazione, mentre la seconda impiegava un unico filtro FIR. 
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{justification=centering} 
+    
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/sterzo120_60_FIR_CASCATA} 
+        \caption{FIR a cascata \protect\\ in retroazione}
+        \label{fig:sterzo120_60_FIR_CASCATA}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/sterzo120_60_FIR3_IMU}
+        \caption{FIR in \protect\\ retroazione}
+        \label{fig:sterzo120_60_FIR3_IMU} 
+    \end{minipage}
+\end{figure}
+
+\noindent Nel primo grafico, relativo all'utilizzo del doppio filtro in cascata, si può notare come il segnale misurato (curva blu) risulti fluido. Tuttavia, questo eccessivo filtraggio introduce un grave ritardo di fase nell'anello di controllo. A causa di questo ritardo, il controllore reagisce in ritardo all'errore, innescando un'ampia e lenta oscillazione sottosmorzata. Nel secondo grafico, che illustra la risposta con il singolo filtro FIR, il comportamento dinamico risulta nettamente superiore. Il tempo di risposta del veicolo migliora e, inoltre, una volta giunto a regime, il sistema oscilla con frequenza maggiore ma con ampiezza estremamente ridotta attorno al riferimento desiderato, senza presentare le profonde derive osservate nel test precedente. L'utilizzo di un singolo filtro FIR in retroazione si è dunque confermata la scelta decisiva.
+\vspace{1cm}
+\noindent A valle della scelta architetturale relativa all'utilizzo di un singolo filtro FIR in retroazione, si è proceduto all'ottimizzazione del suo ordine, ovvero l'ampiezza della finestra mobile di campionamento. L'obiettivo era individuare la dimensione minima capace di garantire una pulizia del segnale sufficientemente precisa, riducendo al minimo indispensabile il ritardo di elaborazione introdotto nell'anello di controllo.
+\vspace{1cm}
+\noindent L'implementazione software del filtro, basata su un array adibito a buffer circolare, è stata definita come segue:
+
+\begin{lstlisting}[language=Cpp, caption="Main.c"]
+//FIR_
+#define FIR_ORDER 3 // Finestra di 3 campioni
+float fir_buffer[FIR_ORDER] = {0}; // L'array per il buffer del FIR
+int fir_index = 0;
+\end{lstlisting}
+
+\noindent Inizialmente, l'ordine del filtro è stato impostato a 3 campioni. Al fine di validare tale parametro e cercare il miglior compromesso prestazionale, sono stati eseguiti ulteriori test empirici variando l'ampiezza della finestra a 6, 4 e, infine, a 2 campioni. Nelle figure seguenti sono riportati i grafici della telemetria relativi a ciascuna delle finestre testate.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo120_60_FIR6_IMU} 
+    \caption{Finestra di 6 campioni}
+    \label{fig:sterzo120_60_FIR6_IMU}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo120_60_FIR4_IMU} 
+    \caption{Finestra di 4 campioni}
+    \label{fig:sterzo120_60_FIR4_IMU}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo120_60_FIR3_IMU} 
+    \caption{Finestra di 3 campioni}
+    \label{fig:sterzo120_60_FIR3_IMU}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo120_60_FIR2_IMU} 
+    \caption{Finestra di 2 campioni}
+    \label{fig:sterzo120_60_FIR2_IMU}
+\end{figure}
+
+\noindent Nel primo grafico, corrispondente a una finestra di 6 campioni, si evince l’effetto di un filtraggio troppo aggressivo: sebbene la curva reale (in blu) risulti molto liscia, il notevole ritardo di fase introdotto dal buffer fa sì che il veicolo impieghi oltre un secondo per raggiungere la prima volta il riferimento di -1 rad/s. Riducendo la finestra a 4 campioni, come mostrato nel secondo grafico, il ritardo si attenua e il tempo di salita migliora sensibilmente, ma permane una certa inerzia nel raggiungere e stabilizzare in modo netto il setpoint. Nel quarto grafico, con il comportamento del sistema con un filtro ridotto a soli 2 campioni, il problema si inverte: la finestra temporale è troppo ristretta e risulta insufficiente per abbattere il rumore ad alta frequenza intrinseco dell'IMU. Il terzo grafico, relativo alla finestra a 3 campioni, conferma in modo evidente la bontà di questa configurazione, che si attesta come il compromesso ideale. Il rumore del sensore viene attenuato quanto basta per garantire un calcolo preciso e stabile dell'errore da parte del controllore, mantenendo al contempo un ritardo di elaborazione del tutto trascurabile. 
+\vspace{1cm}
+\noindent Una volta consolidata l'architettura di controllo con il singolo filtro FIR in retroazione impostato su una finestra di 3 campioni, l'analisi sperimentale è proseguita per valutare la robustezza e l'adattabilità del regolatore al variare delle condizioni cinematiche. Le prove successive sono state quindi suddivise in due fasi distinte: la variazione della velocità di traslazione e la variazione del riferimento di imbardata, yaw rate.
+
+\subsection{Variazione velocità lineare}
+\noindent Per quanto riguarda la prima fase, l'obiettivo è stato quello di osservare come il controllo direzionale reagisse a velocità di crociera differenti rispetto a quella nominale di 1 m/s utilizzata per la taratura iniziale. A tale scopo, sono stati eseguiti test specifici impostando la trazione a 0.8 m/s e, successivamente, a 0.9 m/s.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo120_60_0.9ms} 
+    \caption{Risposta a gradino del controllo di trazione a 0.9 m/s}
+    \label{fig:sterzo120_60_0.9ms}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo_120_60_0.8ms} 
+    \caption{Risposta a gradino del controllo di trazione a 0.8 m/s}
+    \label{fig:sterzo_120_60_0.8ms}
+\end{figure}
+
+\noindent Come si evince dai due grafici, la velocità angolare reale (curva blu) non riesce in alcun modo a raggiungere il setpoint desiderato, assestandosi su valori medi nettamente inferiori: circa -0.55 rad/s nel test a 0.9 m/s e circa -0.45 rad/s in quello a 0.8 m/s. Essendo l'angolo di sterzo vincolato via software e hardware a un massimo di $\pm 20^\circ$, il prototipo possiede un raggio di curvatura minimo invalicabile. Poiché la velocità di imbardata è direttamente proporzionale alla velocità longitudinale di marcia, a parità di angolo di sterzo massimo, una riduzione della velocità rettilinea comporta inevitabilmente una diminuzione della massima velocità angolare raggiungibile.
+In questi scenari, il regolatore riconosce l'errore e satura correttamente l'azione di controllo al suo limite massimo, ma il veicolo risulta fisicamente impossibilitato a curvare in modo più restrittivo. 
+
+\subsection{Varazione velocità angolare}
+\noindent Nella seconda fase di test, riportando e mantenendo costante la velocità di traslazione al valore nominale, è stata sollecitata la dinamica laterale variando il setpoint dello yaw rate. Il sistema è stato sottoposto a richieste di sterzata di diversa entità: sono state investigate dinamiche più blande, testando riferimenti di 0.6 rad/s e 0.8 rad/s, e manovre via via più aggressive, innalzando la richiesta a 1.2 rad/s e 1.4 rad/s. Questo ha permesso di delineare in modo completo i limiti operativi del controllore e i vincoli fisici del servomotore.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo120_60_0.6radss} 
+\caption{Risposta a gradino del controllo di sterzo, riferimento di -0.6 rad/s.}
+    \label{fig:sterzo120_60_0.6radss}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo120_60_0.8radss} 
+\caption{Risposta a gradino del controllo di sterzo, riferimento di -0.8 rad/s.}
+    \label{fig:sterzo120_60_0.8radss}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo_120_60_1.2radss} 
+\caption{Risposta a gradino del controllo di sterzo, riferimento di -1.2 rad/s.}
+    \label{fig:sterzo_120_60_1.2radss}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/sterzo120_60_1.4radss} 
+\caption{Risposta a gradino del controllo di sterzo, riferimento di -1.4 rad/s.}
+    \label{fig:sterzo120_60_1.4radss}
+\end{figure}
+
+\noindent Come si evince dalle misurazioni, il riferimento di -0.6 rad/s viene raggiunto e mantenuto dal controllore, rappresentando la soglia massima delle capacità di manovra del prototipo per la velocità di avanzamento in uso. Al contrario, per le richieste superiori -1.2 e -1.4 rad/s, la velocità angolare reale non riesce a inseguire il setpoint, assestandosi e saturando attorno al limite fisico di circa -0.6 rad/s. Avendo raggiunto il raggio di curvatura minimo del telaio, risulta impossibile generare velocità di imbardata superiori, costringendo il sistema in uno stato di completa saturazione.
 
 \newpage
 \addcontentsline{toc}{chapter}{Conclusioni e sviluppi futuri}
 \section*{Conclusioni e sviluppi futuri}
-Riassumere brevemente il lavoro svolto rispetto al task assegnato, evidenziando quali risultati sono stati raggiunti e quali no. Se ci sono aspetti del task non completati spiegare quali sono stati i problemi riscontrati in merito.\\
-Inserire considerazioni personali su possibili sviluppi futuri dell'attività svolta (idee per migliorarla che non avete avuto modo di sperimentare, aspetti che suggerite di approfondire, problemi da risolvere..).
-
-\addcontentsline{toc}{chapter}{Appendici}
-\appendix
-\chapter{Appendice1}
-Se necessario ricorrete alle appendici per spiegare le parti "di contorno" dell'attività svolta e/o ciò che non riuscite ad inserire nello schema generale dei capitoli della relazione (es acquisizione dei dati con Matlab).
-
+Il task principale consisteva nel realizzare un'architettura di controllo completa, in grado di acquisire i comandi del radiocomando, elaborare i dati sensoriali e tarare adeguatamente i PID per la trazione e lo sterzo. Complessivamente, gli obiettivi fondamentali del progetto sono stati raggiunti. Il controllo di trazione, attuato sul motore DC e retroazionato tramite encoder, ha dimostrato un ottimo inseguimento del riferimento di velocità lineare, evidenziando tempi di salita ridotti e un Errore Quadratico Medio del tutto trascurabile. Parallelamente, grazie all'implementazione di filtri digitali FIR sia singoli che in cascata, che hanno permesso di ripulire efficacemente il segnale, etto dall'IMU, è stato possibile stabilizzare la risposta direzionale del veicolo, ottimizzando le prestazioni dell'anello chiuso senza introdurre latenze eccessive nel sistema.
+\noindent Alla luce dei risultati sperimentali e delle limitazioni fisiche evidenziate, un naturale sviluppo futuro riguarderebbe l'implementazione di diverse mappature di guida, selezionabili in tempo reale tramite i canali ausiliari del radiocomando. Questo approccio permetterebbe di modificare dinamicamente a runtime i guadagni dei regolatori PID, le costanti di tempo dei filtri FIR o i limiti massimi di velocità e imbardata. Si potrebbero così creare profili di guida differenziati, ad esempio una modalità \textit{Eco/Smooth} per transitori dolci e una modalità \textit{Sport} per la massima reattività, adattando istantaneamente il comportamento del prototipo alle esigenze del pilota o alle condizioni della superficie di prova.
 
 \bibliographystyle{ieeetr}
+\nocite{*}
 \bibliography{bibl} 
 \end{document}

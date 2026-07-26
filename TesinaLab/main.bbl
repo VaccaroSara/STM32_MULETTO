@@ -1,3 +1,23 @@
-\begin{thebibliography}{}
+\begin{thebibliography}{1}
+
+\bibitem{MicrozoneMC6C}
+Microzone, {\em Microzone 6CH Remote Transmitter Receiver System for Drones/Quadcopters, Modello: MC6C}.
+\newblock Manuale utente e specifiche tecniche (Banda 2.4 GHz, Modulazione FHSS).
+
+\bibitem{Libofsha}
+A.~Libofsha, ``Sviluppo di algoritmi su microcontrollore per il controllo di direzione e velocità per la guida autonoma di un veicolo in scala 1:10.''
+
+\bibitem{Colletta}
+M.~Colletta, ``Progettazione e sviluppo di algoritmi su dispositivi edge per l'esecuzione di manovre autonome su veicolo in scala 1:10.''
+
+\bibitem{Brunella}
+F.~Brunella, ``Implementazione di algoritmi di visione per il lane-keeping e il controllo di veicoli autonomi.''
+
+\bibitem{Guagneli_etal}
+A.~Guagneli, R.~Alwan, and L.~Ghiddi, ``Implementazione di un algoritmo per il controllo di trazione e sterzata di un veicolo in scala 1:10 mediante radiocomando.''
+
+\bibitem{SlideBonci}
+A.~Bonci, ``Materiale didattico del corso.''
+\newblock Slide fornite dal docente.
 
 \end{thebibliography}
