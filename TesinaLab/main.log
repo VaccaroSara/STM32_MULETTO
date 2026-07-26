@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.9.26)  25 JUL 2026 22:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.9.26)  26 JUL 2026 02:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**"/Users/tareknaja/Desktop/Uni/Lab Auto/STM32_MULETTO/TesinaLab/main.tex"
-(/Users/tareknaja/Desktop/Uni/Lab Auto/STM32_MULETTO/TesinaLab/main.tex
+**"/Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex"
+(/Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
 (/usr/local/texlive/2025/texmf-dist/tex/latex/base/report.cls
@@ -667,22 +667,34 @@ File: lstlang1.sty 2024/09/23 1.10c listings language file
 
 [30]
 Capitolo 5.
-<figures/grafico.JPG, id=156, 549.55313pt x 297.61188pt>
-File: figures/grafico.JPG Graphic file (type jpg)
-<use figures/grafico.JPG>
-Package pdftex.def Info: figures/grafico.JPG  used on input line 922.
-(pdftex.def)             Requested size: 352.6793pt x 190.99773pt.
+
+Overfull \hbox (6.79398pt too wide) in paragraph at lines 920--922
+\OT1/cmr/m/n/10.95 Il con-trol-lo del-la ve-lo-cit^^Ra lon-gi-tu-di-na-le ^^Re sta-to af-fi-da-to a un re-go-la-to-re di ti-po PI (Proporzionale-
+ []
+
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 939.
 
 
 [31
 
- <./figures/grafico.JPG>]
+]
 
 [32]
+<figures/grafico.JPG, id=163, 549.55313pt x 297.61188pt>
+File: figures/grafico.JPG Graphic file (type jpg)
+<use figures/grafico.JPG>
+Package pdftex.def Info: figures/grafico.JPG  used on input line 1002.
+(pdftex.def)             Requested size: 352.6793pt x 190.99773pt.
+
+
+[33 <./figures/grafico.JPG>]
+
+[34]
 Appendice A.
 (./main.bbl
 
-[33
+[35
 
 ]
 
@@ -690,7 +702,7 @@ LaTeX Warning: Empty `thebibliography' environment on input line 3.
 
 )
 
-[34
+[36
 
 ] (./main.aux)
  ***********
@@ -703,18 +715,18 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 10140 strings out of 473190
- 163905 string characters out of 5715800
- 997817 words of memory out of 5000000
- 33266 multiletter control sequences out of 15000+600000
- 568491 words of font info for 71 fonts, out of 8000000 for 9000
+ 10222 strings out of 473190
+ 164941 string characters out of 5715800
+ 1044800 words of memory out of 5000000
+ 33347 multiletter control sequences out of 15000+600000
+ 568827 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 79i,12n,93p,805b,1840s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on main.pdf (35 pages, 10970510 bytes).
+ 79i,12n,93p,803b,1840s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
+Output written on main.pdf (37 pages, 10990286 bytes).
 PDF statistics:
- 234 PDF objects out of 1000 (max. 8388607)
- 125 compressed objects within 2 object streams
+ 248 PDF objects out of 1000 (max. 8388607)
+ 135 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  106 words of extra memory for PDF output out of 10000 (max. 10000000)
 

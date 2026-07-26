@@ -914,8 +914,88 @@ end
 Dopo aver spiegato il codice che gestisce i singoli componenti, inserire e commentare le porzioni di codice relative al funzionamento complessivo del programma.
 
 \chapter{Test e risultati}
-Dedicate un capitolo a tutti i test effettuati con relativi risultati, includete sia i test finali relativi al funzionamento complessivo, sia i test delle singole parti (se significativi). \\
-Descrivete in dettaglio le condizioni in cui sono stati svolti i test in modo che siano ripetibili. Durante i test fate dei video e acquisite i dati (es usando la funzione di log di Putty), per i test più rilevanti è opportuno consegnare anche questo materiale per documentare i test effettuati. Nella relazione riportate i risultati con dei grafici come quello in Figura \ref{fig:grafico} (inserite sempre nei grafici le label sugli assi con grandezza e relativa unità di misura). Commentate in modo critico i risultati ottenuti, evidenziando sia quelli positivi sia quelli negativi. 
+La presente sezione è dedicata all'analisi sperimentale e alla validazione sul campo degli algoritmi di controllo implementati sul microcontrollore. Al fine di valutare in modo completo e rigoroso le performance dinamiche del prototipo, si avranno due macro-aree fondamentali. Dapprima verranno esposti e discussi i risultati relativi al controllo della trazione e, successivamente, l'attenzione si sposterà sulla validazione del controllo direzionale dello sterzo, esaminando la risposta del sistema ai riferimenti di imbardata, i limiti fisici della cinematica del veicolo e l'impatto del filtraggio digitale sull'affidabilità della telemetria. 
+
+\subsection{Trazione}
+Il controllo della velocità longitudinale è stato affidato a un regolatore di tipo PI (Proporzionale-Integrale), i cui parametri sono stati definiti empiricamente e affinati sul campo per garantire una risposta rapida e priva di errore a regime.
+Le costanti di guadagno ottimali, il tempo di campionamento dell'anello di controllo e i limiti di saturazione simmetrica sono stati definiti all'interno del firmware come segue:
+
+\begin{lstlisting}[language=Cpp, caption=""]
+//TRACTION PID
+#define TRACTION_SAMPLING_TIME 0.01 //[s]
+#define MAX_U_TRACTION 2.6 // [V]
+#define MIN_U_TRACTION -2.6 // [V]
+#define KP_TRACTION 0.006
+#define KI_TRACTION 0.002
+\end{lstlisting}
+
+Per l'analisi delle performance del sistema e l'estrapolazione dei risultati visivi, i dati sono stati acquisiti via seriale utilizzando anche il terminale per monitorare e validare preliminarmente il corretto flusso delle stringhe di testo in uscita dal microcontrollore. L'acquisizione definitiva e il tracciamento in tempo reale sono stati eseguiti su MATLAB con il seguente script:
+
+\begin{lstlisting}[language=Matlab, caption={Codice in MATLAB}, basicstyle=\ttfamily\small, breaklines=true]
+% 1. Configurazione Porta Seriale
+port_name = '/dev/tty.usbmodem1203'; 
+baud_rate = 115200;
+
+if exist('s', 'var')
+    clear s;
+end
+
+s = serialport(port_name, baud_rate);
+s.Timeout = 10; 
+configureTerminator(s, "CR/LF");
+flush(s);
+
+% 2. Configurazione del Grafico 
+figure('Name', 'Telemetria Trazione', 'NumberTitle', 'off');
+h_ref = animatedline('Color', 'r', 'LineWidth', 2, 'DisplayName', 'Velocita Desiderata (Ref)');
+h_real = animatedline('Color', 'b', 'LineWidth', 2, 'DisplayName', 'Velocita Reale da Encoder');
+
+legend('Location', 'northwest');
+xlabel('Campioni (1 campione = 10ms)');
+ylabel('Velocita [m/s]');
+grid on;
+ylim([0, 1.5]); % Alzato per supportare velocita fino a 1 m/s e oltre
+
+somma_errori_quadrati = 0;
+campioni_validi = 0;
+
+% 3. Ciclo di Lettura e Plotting
+disp('Inizio lettura dati... Premi Ctrl+C nella Command Window per fermare.');
+
+campioni = 1000; 
+for i = 1:campioni
+    try
+        data_str = readline(s);
+        data_split = split(data_str, ',');
+        
+        if length(data_split) == 3 && startsWith(data_split(1), "R")
+            
+            v_ref = str2double(data_split(2));
+            v_real = str2double(data_split(3));
+            
+            % CALCOLO MINIMI QUADRATI (MSE) 
+            errore_attuale = v_ref - v_real;
+            somma_errori_quadrati = somma_errori_quadrati + (errore_attuale^2);
+            campioni_validi = campioni_validi + 1;
+            
+            mse_attuale = somma_errori_quadrati / campioni_validi;
+            
+            title(sprintf('Inseguimento Velocita | MSE: %.6f', mse_attuale));
+            
+            addpoints(h_ref, campioni_validi, v_ref);
+            addpoints(h_real, campioni_validi, v_real);
+            
+            drawnow limitrate; 
+        end
+    catch
+        continue;
+    end
+end
+
+disp('Acquisizione completata.');
+fprintf('MSE Finale: %.6f\n', mse_attuale);
+clear s;
+\end{lstlisting}
 
 \begin{figure}[H]
 \centering
