@@ -643,10 +643,25 @@ I timer permettono di misurare il tempo e quindi di ottenere i valori desiderati
 \noindent Inoltre, poiché la frequenza minima leggibile è data da $\frac{TIMCLOCK}{COUNTERPERIOD}$, si è deciso di lasciare il "Counter Period" al massimo, ovvero 0xffffffff (corrispondente a 4294967295) essendo il TIM5 un timer a 32 bit.
     \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth,keepaspectratio]{images/impostazioni_timer.png}
-\caption{Impostazioni timer}
-\label{fig:impostazioni_timer}
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim5_mode.png}
+\caption{Configurazione del TIM5}
+\label{fig:Tim5_mode}
 \end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim5_parameter.png} 
+\caption{Configurazione del TIM5}
+\label{fig:Tim5_parameter}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim5_NVIC.png} 
+\caption{Configurazione del TIM5}
+\label{fig:Tim5_NVIC}
+\end{figure}
+
 \subsubsection{Acquisizione del segnale PWM}
 Il segnale PWM in uscita dal ricevitore del radiocomando presenta una frequenza fissa (tipicamente 50 Hz, pari a un periodo di 20 ms). Pertanto, il calcolo della frequenza risulta irrilevante ai fini del controllo dinamico del veicolo. L'informazione vitale legata al comando impartito dal pilota risiede unicamente nella larghezza dell'impulso alto ($T_{on}$), che varia proporzionalmente al movimento delle levette in un intervallo tipicamente compreso tra 1000 $\mu$s e 2000 $\mu$s.
 
@@ -655,11 +670,11 @@ Il segnale PWM in uscita dal ricevitore del radiocomando presenta una frequenza 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth,keepaspectratio]{images/BothEdges.png} 
-\caption{Configurazione Polarity Selection su Both Edges}
+\caption{Configurazione del TIM5}
 \label{fig:polarity_both}
 \end{figure}
 
-\noindent La logica di acquisizione è gestita all'interno della funzione di callback \texttt{HAL\_TIM\_IC\_CaptureCallback}. Tramite l'ausilio di flag di stato (come \texttt{Is\_First\_Captured\_Steering}), il sistema salva il valore del contatore hardware al verificarsi del fronte di salita, commutando contestualmente la sensibilità del canale sul fronte opposto. Al successivo fronte di discesa, il contatore viene letto nuovamente per poterne calcolare la differenza temporale. 
+\noindent La logica di acquisizione è gestita all'interno della funzione di callback \texttt{HAL\_TIM\_IC\_CaptureCal\allowbreak lback}. Tramite l'ausilio di flag di stato (come \texttt{Is\_First\_Captured\_\allowbreak Steering}), il sistema salva il valore del contatore hardware al verificarsi del fronte di salita, commutando contestualmente la sensibilità del canale sul fronte opposto. Al successivo fronte di discesa, il contatore viene letto nuovamente per poterne calcolare la differenza temporale.
 
 \noindent Poiché il timer opera con un clock effettivo di 1 MHz, la differenza algebrica tra le due letture restituisce la durata dell'impulso espressa direttamente in microsecondi. Tale valore viene salvato nelle variabili globali (\texttt{steering\_us} e \texttt{throttle\_us}) per essere impiegato come setpoint, a patto che superi il controllo di sicurezza implementato per scartare letture anomale esterne al range nominale (600--2400 $\mu$s).
 
@@ -737,14 +752,8 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
 A differenza delle classiche implementazioni hardware che prevedono l'azzeramento forzato del contatore del timer ad ogni fronte di salita (metodologia che impedisce la lettura simultanea di più canali e costringe all'utilizzo di molteplici timer), in questo progetto si è optato per un approccio software non distruttivo.
 
-\noindent Come si evince dalla configurazione di sistema in STM32CubeMX (Figura \ref{fig:tim5_configurazione}), il timer dedicato alla decodifica (TIM5) è attivamente impiegato sui canali 1 e 4 in modalità \textit{Input Capture direct mode}, ma il suo contatore viene fatto avanzare in modo continuo (fino al suo limite massimo a 32 bit, pari a 4294967295) senza mai subire reset forzati. All'attivazione dell'interrupt, la \textit{callback} si limita a "fotografare" il valore assoluto del registro (tramite la funzione \verb|HAL_TIM_ReadCapturedValue|).
+\noindent Come si evince dalla configurazione di sistema in STM32CubeMX, il timer dedicato alla decodifica (TIM5) è attivamente impiegato sui canali 1 e 4 in modalità \textit{Input Capture direct mode}, ma il suo contatore viene fatto avanzare in modo continuo (fino al suo limite massimo a 32 bit, pari a 4294967295) senza mai subire reset forzati. All'attivazione dell'interrupt, la \textit{callback} si limita a "fotografare" il valore assoluto del registro, tramite la funzione \verb|HAL_TIM_ReadCapturedValue|.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=1\textwidth,keepaspectratio]{images/Timer5_Channels.png} 
-\caption{Configurazione del TIM5 con i canali 1 e 4 attivi}
-\label{fig:tim5_configurazione}
-\end{figure}
 
 \noindent La durata dell'impulso viene così ricavata puramente per differenza matematica tra il timestamp di discesa e quello di salita. Per prevenire errori di calcolo nel raro caso in cui avvenga un overflow del timer proprio durante un impulso, l'algoritmo include un controllo condizionale che compensa il riavvio del conteggio sommano il complemento a due del limite massimo.
 
@@ -1051,7 +1060,196 @@ float PID_controller(PID* p , float y, float r){
 }
 \end{lstlisting}
 
+\subsection{Codice}
+La trazione del veicolo è controllata principalmente all'interno del loop infinito presente nel file \texttt{main.c}, ed è temporizzata dall'attivazione di un flag (\texttt{Flag\_10ms}) gestito dall'interrupt del TIM6 ogni 10 millisecondi. Il controllo avviene tramite un algoritmo PID che si occupa di mantenere la velocità del motore quanto più vicina possibile alla velocità di riferimento desiderata, che viene calcolata dai segnali impartiti tramite il radiocomando.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim6_parameters_ioc.png} 
+    \caption{Configurazione del TIM6}
+    \label{fig:Tim6_parameters_ioc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim6_nvic_ioc.png} 
+    \captionsetup{labelsep=newline, justification=centering}
+    \caption{Configurazione del TIM6}
+    \label{fig:Tim6_nvic_ioc}
+\end{figure}
+
+\noindent Il punto di partenza è la lettura e il filtraggio del segnale proveniente dalla levetta del gas (\texttt{throttle\_us}). Per rendere le letture più stabili, il segnale grezzo viene passato attraverso un filtro FIR a media mobile. Il codice memorizza i campioni in un buffer dedicato (\texttt{fir\_buffer\_throttle}) che tiene traccia degli ultimi valori (in una finestra di ordine 3) ed effettua una media. Si ottiene così la variabile \texttt{throttle\_filtered}, che per ragioni di sicurezza viene limitata rigorosamente nel range tra \texttt{1000.0f} e \texttt{2000.0f}.
+
+\begin{lstlisting}[language=Cpp, caption={Main.c: implementazione del filtro FIR}, numbers=left, stepnumber=1]
+//Filtro FIR trazione (Media Mobile)
+if(new_rc_throttle)
+{
+    new_rc_throttle = 0;
+
+    // Lettura segnale grezzo del gas
+    float throttle_raw = (float)throttle_us;
+
+    // Salvataggio nell'array dedicato alla trazione
+    fir_buffer_throttle[fir_index_throttle] = throttle_raw;
+
+    // Fa avanzare l'indice nell'array 
+    fir_index_throttle = (fir_index_throttle + 1) % FIR_ORDER;
+
+    //Calcolo media
+    float sum_throttle = 0.0f;
+    for(int i = 0; i < FIR_ORDER; i++) {
+        sum_throttle += fir_buffer_throttle[i];
+    }
+
+    //Aggiornamento variabili globali
+    throttle_filtered = sum_throttle / (float)FIR_ORDER;
+
+    //Limiti di sicurezza
+    if(throttle_filtered < 1000.0f) throttle_filtered = 1000.0f;
+    if(throttle_filtered > 2000.0f) throttle_filtered = 2000.0f;
+}
+\end{lstlisting}
+
+\noindent Per poter controllare dinamicamente la trazione, è essenziale calcolare a che velocità sta girando effettivamente il motore. Questa lettura è permessa dall'encoder, gestito tramite il timer TIM4. Ogni 10 ms, viene calcolata la differenza dei conteggi dell'encoder (\texttt{delta\_count}) per capire l'incremento rispetto alla lettura di riferimento. I conteggi vengono trasformati in gradi (\texttt{delta\_angle\_deg}) e, dividendoli per il tempo di campionamento, si ottiene la velocità angolare in gradi al secondo (\texttt{motor\_speed\_deg\_sec}). A questo punto interviene la funzione \texttt{DegreeSec2RPM}, definita in \texttt{DC\_motor.c}, che tramite una proporzione converte i gradi/secondo negli RPM reali (\texttt{motor\_speed\_RPM}). Questa velocità rappresenta il feedback effettivo per il sistema di controllo.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim4_mode_ioc.png}
+\caption{Configurazione del TIM4}
+\label{fig:Tim4_mode_ioc}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim4_parameters_ioc.png}
+\caption{Configurazione del TIM4}
+\label{fig:Tim4_parameters_ioc}
+\end{figure}
+
+\begin{lstlisting}[language=Cpp, caption={Main.c: acquisizione dei dati dall'encoder e calcolo della velocità reale}, numbers=left, stepnumber=1]
+//PID (ogni 10ms esatti grazie al Flag)
+if (Flag_10ms == 1)
+{
+    Flag_10ms = 0;
+
+    //Lettura encoder (feedback trazione)
+    vehicleState.counts = TIM4->CNT;
+    TIM4->CNT = TIM4->ARR / 2;
+    vehicleState.ref_count = TIM4->ARR / 2;
+    vehicleState.delta_count = vehicleState.counts - vehicleState.ref_count;
+
+    vehicleState.delta_angle_deg = (vehicleState.delta_count * 360.0) /
+                                   ((double) (ENCODER_PPR * ENCODER_COUNTING_MODE * GEARBOX_RATIO));
+    vehicleState.motor_speed_deg_sec = vehicleState.delta_angle_deg / ENCODER_SAMPLING_TIME;
+    vehicleState.motor_speed_RPM = DegreeSec2RPM(vehicleState.motor_speed_deg_sec);
+\end{lstlisting}
+
+\noindent La velocità di riferimento (setpoint), denominata \texttt{target\_rpm}, viene invece estrapolata direttamente dalla variabile \texttt{throttle\_filtered}. Per garantire l'immobilità del veicolo ed evitare comportamenti anomali in assenza di comandi, è stata configurata una ``zona morta'' di riposo per i valori centrali della levetta:
+
+\begin{itemize}
+    \item \textbf{Marcia in avanti}: Se il segnale \texttt{throttle\_filtered} supera i \texttt{1560.0f}, il riferimento di direzione (\texttt{target\_dir}) viene settato a 1 e \texttt{target\_rpm} assume un valore proporzionale calcolato sulla differenza tra il segnale filtrato e la soglia di \texttt{1560.0f}. 
+    
+    \item \textbf{Retromarcia}: Se \texttt{throttle\_filtered} scende sotto i \texttt{1440.0f}, la marcia viene invertita (\texttt{target\_dir} = 0) e la velocità desiderata scala in base allo scostamento sotto tale soglia.
+    
+    \item \textbf{Stato fermo}: Se il segnale ricade all'interno della zona neutra (tra 1440 e 1560), la velocità \texttt{target\_rpm} è posta pari a zero e, parallelamente, vengono resettati sia il termine integrale (\texttt{Iterm}) sia l'errore precedente (\texttt{e\_old}) del PID della trazione. Questa operazione è di vitale importanza per impedire l'effetto di \textit{wind-up} dell'errore integrale, scongiurando forti ed incontrollabili scatti del motore in fase di ripartenza.
+\end{itemize}
+
+\noindent Il fulcro dell'anello di controllo risiede nell'applicazione dell'algoritmo PID. Per il controllo longitudinale, i calcoli avvengono richiamando la funzione \texttt{PID\_controller} a cui si passano i valori assoluti (calcolati tramite \texttt{fabs()}) della velocità attuale del motore e del riferimento calcolato in precedenza. L'output della funzione, salvato nella variabile \texttt{u\_trazione}, corrisponde allo sforzo richiesto al motore (il controllo della tensione) per annullare l'errore registrato tra realtà e comando.
+
+\begin{lstlisting}[language=Cpp, caption={Main.c: mappatura del setpoint, zona morta e calcolo PID}, numbers=left, stepnumber=1]
+//Mappatura trazione PID
+    float target_rpm = 0.0f;
+    uint8_t target_dir = 0;
+
+    float MAX_SPEED_M_S = 1.0f;
+    float MAX_TARGET_RPM = MAX_SPEED_M_S / RPM_2_m_s;
+
+    if(throttle_filtered > 1560.0f)
+    {
+        target_dir = 1;
+        target_rpm = ((throttle_filtered - 1560.0f) * MAX_TARGET_RPM) / 433.0f;
+    }
+    else if(throttle_filtered < 1440.0f)
+    {
+        target_dir = 0;
+        target_rpm = ((1440.0f - throttle_filtered) * MAX_TARGET_RPM) / 449.0f;
+    }
+    else
+    {
+        target_rpm = 0.0f;
+        target_dir = 0;
+        pid_traction.Iterm = 0;
+        pid_traction.e_old = 0;
+    }
+
+    vehicleState.motor_speed_ref_RPM = target_rpm;
+    vehicleState.motor_direction_ref = target_dir;
+
+    u_trazione = PID_controller(&pid_traction,
+                                fabs(vehicleState.motor_speed_RPM),
+                                fabs(vehicleState.motor_speed_ref_RPM));
+
+    uint32_t duty_finale = (uint32_t) Voltage2Duty(u_trazione);
+
+    if(duty_finale > MAX_SPEED) duty_finale = MAX_SPEED;
+    if(target_rpm == 0.0f) duty_finale = 0;
+
+    set_PWM_and_dir(duty_finale, target_dir);
+\end{lstlisting}
+
+\noindent Successivamente, il calcolo matematico deve essere convertito in un segnale comprensibile all'hardware: la variabile \texttt{u\_trazione} viene quindi processata dalla funzione \texttt{Voltage2Duty} che trasforma il segnale dal range di tensione ad una percentuale di Duty Cycle per la Pulse-Width Modulation.
+
+\noindent Il valore di duty, dopo essere stato sottoposto a saturazione contro eventuali velocità eccessive (limitato a \texttt{MAX\_SPEED}), viene fornito in pasto alla funzione di interfaccia di basso livello \texttt{set\_PWM\_and\_dir} assieme al riferimento di direzione. Questa procedura, esposta nel sorgente \texttt{DC\_motor.c}, si occupa di due cose fondamentali: scrive materialmente il duty cycle calcolato nel registro di comparazione CCR1 del TIM3 (timer responsabile del segnale di potenza inviato al driver motore) e definisce il livello logico del pin PD5 per impostare correttamente il verso di marcia dell'auto.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim3_mode_ioc.png}
+\caption{Configurazione del TIM3}
+\label{fig:Tim3_mode_ioc}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim3_parameters_ioc.png}
+\caption{Configurazione del TIM3}
+\label{fig:Tim3_parameters_ioc}
+\end{figure}
+
+\begin{lstlisting}[language=Cpp, caption={Main.c: funzioni di conversione e attuazione a basso livello}, numbers=left, stepnumber=1]
+Funzioni di conversione e attuazione a basso livello (DC_motor.c). 
+float DegreeSec2RPM(float speed_degsec){
+	float speed_rpm = speed_degsec * 60/360;
+	return speed_rpm;
+}
+
+float Voltage2Duty(float u){
+	float duty = 100*u/V_MAX;
+
+	if(duty>100){
+		duty=100;
+	} else if(duty<0){
+		duty = 0;
+	}
+	return duty;
+}
+
+void set_PWM_and_dir(uint32_t duty, uint8_t dir)
+{
+    if(duty > 100)
+        duty = 100;
+
+    TIM3->CCR1 = (duty * (TIM3->ARR + 1)) / 100;
+
+    if(dir == 0)
+    {
+        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_5, GPIO_PIN_RESET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_5, GPIO_PIN_SET);
+    }
+}
+\end{lstlisting}
 
 
 \section{Implementazione del Controllo dello Sterzo}
@@ -1069,11 +1267,19 @@ I parametri fondamentali del timer sono stati calcolati per ottenere un segnale 
     \item \textbf{Counter Period:} è stato impostato a \verb|19999|. Il timer è configurato in modalità ``Up'', quindi conta da 0 a 19999, compiendo 20000 passi prima di azzerarsi. Considerando la risoluzione temporale di 1 microsecondo ricavata dal Prescaler, il periodo totale del segnale PWM risulta essere esattamente di 20000 microsecondi, ovvero 20 millisecondi (50 Hz).
 \end{itemize}
 Per modificare dinamicamente il \textit{duty cycle} (e di conseguenza controllare l'angolo di sterzata del veicolo), il firmware agisce direttamente sul registro di comparazione associato al canale utilizzato, ovvero \verb|TIM1->CCR2|. Grazie a questa configurazione temporale così pulita, la scrittura nel registro è diretta: per posizionare il servomotore è sufficiente assegnare alla variabile del registro il valore esatto in microsecondi calcolato dall'algoritmo di controllo (tipicamente compreso nel \textit{range} operativo 1000 $\mu s$ - 2000 $\mu s$), garantendo una risposta istantanea e precisa della meccanica.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/Timer1.png}
-    \caption{Configurazione del TIM1 per l'attuazione dello sterzo}
-    \label{fig:timer1}
+    \includegraphics[width=0.8\textwidth]{images/Tim1_mode.png}
+    \caption{Configurazione del TIM1}
+    \label{fig:Tim1_mode}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Tim1_parameter.png}
+    \caption{Configurazione del TIM1}
+    \label{fig:Tim1_parameter}
 \end{figure}
 
 \subsubsection{servo\_motor.h}
@@ -1479,9 +1685,11 @@ legend('Comando (Riferimento)', 'Realta (IMU)', 'Location', 'best');
 \end{figure}
 
 \noindent Nel primo grafico, relativo all'utilizzo del doppio filtro in cascata, si può notare come il segnale misurato (curva blu) risulti fluido. Tuttavia, questo eccessivo filtraggio introduce un grave ritardo di fase nell'anello di controllo. A causa di questo ritardo, il controllore reagisce in ritardo all'errore, innescando un'ampia e lenta oscillazione sottosmorzata. Nel secondo grafico, che illustra la risposta con il singolo filtro FIR, il comportamento dinamico risulta nettamente superiore. Il tempo di risposta del veicolo migliora e, inoltre, una volta giunto a regime, il sistema oscilla con frequenza maggiore ma con ampiezza estremamente ridotta attorno al riferimento desiderato, senza presentare le profonde derive osservate nel test precedente. L'utilizzo di un singolo filtro FIR in retroazione si è dunque confermata la scelta decisiva.
-\vspace{1cm}
+
+\vspace{0.4cm}
 \noindent A valle della scelta architetturale relativa all'utilizzo di un singolo filtro FIR in retroazione, si è proceduto all'ottimizzazione del suo ordine, ovvero l'ampiezza della finestra mobile di campionamento. L'obiettivo era individuare la dimensione minima capace di garantire una pulizia del segnale sufficientemente precisa, riducendo al minimo indispensabile il ritardo di elaborazione introdotto nell'anello di controllo.
-\vspace{1cm}
+
+\vspace{0.4cm}
 \noindent L'implementazione software del filtro, basata su un array adibito a buffer circolare, è stata definita come segue:
 
 \begin{lstlisting}[language=Cpp, caption="Main.c"]
@@ -1522,7 +1730,7 @@ int fir_index = 0;
 \end{figure}
 
 \noindent Nel primo grafico, corrispondente a una finestra di 6 campioni, si evince l’effetto di un filtraggio troppo aggressivo: sebbene la curva reale (in blu) risulti molto liscia, il notevole ritardo di fase introdotto dal buffer fa sì che il veicolo impieghi oltre un secondo per raggiungere la prima volta il riferimento di -1 rad/s. Riducendo la finestra a 4 campioni, come mostrato nel secondo grafico, il ritardo si attenua e il tempo di salita migliora sensibilmente, ma permane una certa inerzia nel raggiungere e stabilizzare in modo netto il setpoint. Nel quarto grafico, con il comportamento del sistema con un filtro ridotto a soli 2 campioni, il problema si inverte: la finestra temporale è troppo ristretta e risulta insufficiente per abbattere il rumore ad alta frequenza intrinseco dell'IMU. Il terzo grafico, relativo alla finestra a 3 campioni, conferma in modo evidente la bontà di questa configurazione, che si attesta come il compromesso ideale. Il rumore del sensore viene attenuato quanto basta per garantire un calcolo preciso e stabile dell'errore da parte del controllore, mantenendo al contempo un ritardo di elaborazione del tutto trascurabile. 
-\vspace{1cm}
+\vspace{0.4cm}
 \noindent Una volta consolidata l'architettura di controllo con il singolo filtro FIR in retroazione impostato su una finestra di 3 campioni, l'analisi sperimentale è proseguita per valutare la robustezza e l'adattabilità del regolatore al variare delle condizioni cinematiche. Le prove successive sono state quindi suddivise in due fasi distinte: la variazione della velocità di traslazione e la variazione del riferimento di imbardata, yaw rate.
 
 \subsection{Variazione velocità lineare}
