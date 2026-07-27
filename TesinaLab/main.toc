@@ -34,20 +34,22 @@
 \contentsline {subsubsection}{Struttura codice principale}{25}{subsubsection*.29}%
 \contentsline {subsubsection}{Operazioni di inizializzazione e avvio dei Timer}{26}{subsubsection*.30}%
 \contentsline {subsubsection}{Ciclo di esecuzione principale - Main loop}{27}{subsubsection*.31}%
-\contentsline {subsection}{\numberline {4.2.2}Controllo della trazione}{28}{subsection.4.2.2}%
-\contentsline {subsubsection}{File e strutture dati per il controllo}{28}{subsubsection*.32}%
-\contentsline {subsubsection}{PID.h}{31}{subsubsection*.33}%
-\contentsline {subsubsection}{PID.c}{32}{subsubsection*.34}%
-\contentsline {subsection}{\numberline {4.2.3}Codice}{33}{subsection.4.2.3}%
-\contentsline {section}{\numberline {4.3}Implementazione del Controllo dello Sterzo}{39}{section.4.3}%
-\contentsline {subsubsection}{Configurazione del Timer per l'attuazione dello sterzo (PWM)}{40}{subsubsection*.41}%
-\contentsline {subsubsection}{servo\_motor.h}{42}{subsubsection*.44}%
-\contentsline {subsubsection}{bno055\_STM.h}{43}{subsubsection*.45}%
-\contentsline {subsection}{\numberline {4.3.1}servo\_motor.c}{45}{subsection.4.3.1}%
-\contentsline {subsubsection}{Calibrazione meccanica dello sterzo}{46}{subsubsection*.46}%
+\contentsline {section}{\numberline {4.3}Implementazione relativa al controllo della trazione}{28}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}DC\_motor.h}{28}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Parametri dell'encoder}{29}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Struttura dati dello stato del veicolo}{30}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}PID.h}{31}{subsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.3.5}PID.c}{32}{subsection.4.3.5}%
+\contentsline {subsection}{\numberline {4.3.6}Codice}{33}{subsection.4.3.6}%
+\contentsline {section}{\numberline {4.4}Implementazione relativa al controllo dello sterzo}{39}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Configurazione del Timer per l'attuazione dello sterzo (PWM)}{40}{subsection.4.4.1}%
+\contentsline {subsubsection}{servo\_motor.h}{42}{subsubsection*.40}%
+\contentsline {subsection}{\numberline {4.4.2}bno055\_STM.h}{43}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}servo\_motor.c}{45}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Calibrazione meccanica dello sterzo}{46}{subsection.4.4.4}%
 \contentsline {chapter}{\numberline {5}Test e risultati}{48}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Trazione}{48}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Sterzo}{53}{section.5.2}%
 \contentsline {subsection}{\numberline {5.2.1}Variazione velocità lineare}{57}{subsection.5.2.1}%
 \contentsline {subsection}{\numberline {5.2.2}Varazione velocità angolare}{58}{subsection.5.2.2}%
-\contentsline {chapter}{Conclusioni e sviluppi futuri}{62}{figure.caption.62}%
+\contentsline {chapter}{Conclusioni e sviluppi futuri}{62}{figure.caption.56}%

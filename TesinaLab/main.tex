@@ -207,7 +207,7 @@
 \pagestyle{plain}
 
 \section*{Introduzione}
-Il presente elaborato documenta le fasi di progettazione, sviluppo e validazione del firmware di controllo per un veicolo elettrico in scala 1:10. Nello specifico, il lavoro operativo è stato suddiviso in tre task fondamentali: l'interfacciamento e la decodifica dei segnali radio, la regolazione della trazione per la gestione della velocità e il controllo direzionale dello sterzo, questi ultimi implementati mediante algoritmi di controllo PID.
+Il presente elaborato documenta le fasi di progettazione, sviluppo e validazione del firmware di controllo per un veicolo elettrico in scala 1:10. Nello specifico, il lavoro è stato suddiviso in tre task fondamentali: l'interfacciamento e la decodifica dei segnali radio, la regolazione della trazione per la gestione della velocità e il controllo direzionale dello sterzo, questi ultimi implementati mediante algoritmi di controllo PID.
 Nel primo capitolo, viene fornita una descrizione generale del sistema, definendo il contesto operativo e le logiche alla base del controllo della trazione e dello sterzo. Successivamente, il secondo e il terzo capitolo offrono una panoramica dettagliata dell'architettura hardware e degli ambienti software impiegati, delineando tutti i requisiti strumentali necessari per la riproduzione del setup sperimentale. 
 Al suo interno viene dapprima analizzata la struttura generale del codice, per poi scendere nel dettaglio degli algoritmi sviluppati per l'acquisizione e l'elaborazione dei segnali del radiocomando, 
 illustrando l'impostazione dei timer, il calcolo del Duty Cycle e la gestione degli interrupt. A partire da queste fondamenta, vengono discussi i codici e le librerie specifiche implementate mediante l'utilizzo di regolatori PID, analizzando dapprima l'erogazione della trazione tramite la lettura dell'encoder, e successivamente il controllo direzionale dello sterzo, inclusa la sua necessaria calibrazione meccanica. 
@@ -765,7 +765,7 @@ Questa architettura software garantisce numerosi vantaggi:
 \end{itemize}
 
 \subsubsection{Struttura codice principale}
-In questo progetto si è scelto di centralizzare l'acquisizione e il filtraggio dei comandi direttamente all'interno del file \verb|main.c|. Questa architettura riduce l'overhead delle chiamate a funzioni, ottimizzando i tempi di esecuzione per il sistema di controllo in tempo reale. Il codice si articola in tre concetti fondamentali per il trattamento dei dati:
+In questo progetto si è scelto di centralizzare l'acquisizione e il filtraggio dei comandi direttamente all'interno del file \verb|main.c|. Il codice si articola in tre concetti fondamentali per il trattamento dei dati:
 \begin{enumerate}
     \item \textbf{Struttura dati centralizzata}\\
     Invece di utilizzare strutture separate unicamente per la lettura temporale dei segnali, lo stato globale e le cinematiche della vettura sono state incapsulate in un'unica \verb|struct| denominata \verb|vehicleData|. Questa struttura funge da raccoglitore univoco per tutte le metriche fondamentali, semplificando enormemente la gestione della memoria e il passaggio di parametri alle funzioni di controllo.
@@ -885,14 +885,13 @@ while (1)
 L'implementazione matematica dei filtri di validazione e le logiche di mappatura dei segnali Xa e Xb nei rispettivi setpoint fisici verranno analizzate in dettaglio nei successivi capitoli, 
 dedicati al \textbf{Controllo della Trazione} e al \textbf{Controllo dello Sterzo}.
 
-\subsection{Controllo della trazione}
+\section{Implementazione relativa al controllo della trazione}
 \noindent In merito al controllo della trazione si è deciso di utilizzare un controllo a catena chiusa: si utilizzano come feedback le letture provenienti dall’encoder correggendo i risultati utilizzando un singolo controllore PID per regolare l'intensità della velocità, mentre il senso di marcia viene gestito separatamente tramite un apposito pin digitale. Il riferimento viene dato dal radiocomando tramite la levetta a destra. La velocità del veicolo aumenterà all’aumentare della “posizione” della levetta, così come la vettura andrà in retromarcia spingendo la leva verso il basso. All’interno del codice sono stati utilizzati diversi file di intestazione e file sorgente, per ottenere un codice modulare: al fine di svolgere i test in modo più preciso e in sicurezza, il limite massimo di potenza inviata al motore (Duty Cycle del segnale PWM) è stato bloccato al 20%, e per i test di base è stata impostata una velocità di riferimento di 5 cm/s, all'interno di un sistema calibrato per mappare velocità fino a 1 m/s. 
 
-\subsubsection{File e strutture dati per il controllo}
-In questa sezione si riportano i file, le definizioni e le strutture utilizzate per il controllo della trazione e dello sterzo, commentandone le costanti e i prototipi di funzione.
+Nelle prossime sezioni si riportano i file, le definizioni e le strutture utilizzate per il controllo della trazione e dello sterzo, commentandone le costanti e i prototipi di funzione.
 
 \vspace{0.4cm}
-\noindent\textbf{DC\_motor.h} \\
+\subsection{DC\_motor.h} 
 \noindent Il modulo relativo al motore DC racchiude le definizioni e le funzioni necessarie per il pilotaggio dell'attuatore. Nello specifico, all'interno del codice vengono definiti e implementati i seguenti elementi:
 
 \begin{lstlisting}[language=Cpp, caption={DC\_motor.h}]
@@ -923,8 +922,8 @@ void set_PWM_and_dir(uint32_t, uint8_t);
     \item \textbf{\texttt{set\_PWM\_and\_dir}}: è la funzione operativa che si occupa di inviare fisicamente il segnale PWM calcolato al timer hardware del microcontrollore e di commutare lo stato del pin digitale responsabile per la direzione di marcia.
 \end{itemize}
 
-\noindent\textbf{Parametri dell'encoder} \\
-Per quanto riguarda l'acquisizione della velocità e dello spazio percorso, il sistema fa affidamento sui parametri fisici dell'encoder. A livello di architettura del software, si è scelto di non mantenere un file di intestazione isolato per questo sensore, le sue costanti fondamentali sono state invece accorpate all'interno del file \texttt{DC\_motor.h}. \\
+\subsection{Parametri dell'encoder}
+Per quanto riguarda l'acquisizione della velocità e dello spazio percorso, il sistema fa affidamento sui parametri fisici dell'encoder. A livello di architettura del software, si è scelto di non mantenere un file di intestazione isolato per questo sensore, le sue costanti fondamentali sono state invece accorpate all'interno del file \texttt{DC\_motor.h}. 
 
 \begin{lstlisting}[language=Cpp, caption={DC\_motor.h}]
 //ENCODER 
@@ -939,8 +938,8 @@ Per quanto riguarda l'acquisizione della velocità e dello spazio percorso, il s
     \item \textbf{\texttt{ENCODER\_COUNTING\_MODE}}: specifica la modalità di lettura configurata sul Timer hardware. Il valore 4 indica una lettura in quadratura su tutti i fronti (salita e discesa) per entrambi i canali (A e B), garantendo la massima risoluzione possibile nella stima del delta angolare. 
 \end{itemize}
 
-\noindent\textbf{Struttura dati dello stato del veicolo} \\
-La struttura dati utilizzata per la memorizzazione dello stato della vettura è dichiarata e gestita integralmente all'interno del file main.c. Al suo interno vengono raggruppate tutte le variabili di stato e le letture provenienti dai sensori di bordo necessarie al ciclo di controllo. La struttura è divisa logicamente in due blocchi operativi principali: \\
+\subsection{Struttura dati dello stato del veicolo} 
+La struttura dati utilizzata per la memorizzazione dello stato della vettura è dichiarata e gestita integralmente all'interno del file main.c. Al suo interno vengono raggruppate tutte le variabili di stato e le letture provenienti dai sensori di bordo necessarie al ciclo di controllo. La struttura è divisa logicamente in due blocchi operativi principali: 
 
 \begin{lstlisting}[language=Cpp, caption={Main.c}]
 typedef struct VehicleData {
@@ -982,7 +981,7 @@ double yaw_rate_ref_rad_sec; // [rad/s]
     \item \textbf{\texttt{yaw\_rate\_ref\_rad\_sec}}: memorizza la velocità di imbardata di riferimento, che corrisponde all'obiettivo di rotazione direzionale richiesto dal segnale del radiocomando.
 \end{itemize}
 
-\subsubsection{PID.h}
+\subsection{PID.h}
 Nel file \verb|PID.h| viene definita la struttura dati astratta del controllore PID, essenziale per la logica di calcolo del sistema. A livello architetturale, vengono istanziati due controllori PID distinti: uno, \verb|pid_traction|, dedicato alla regolazione della velocità in entrambi i sensi di marcia e l'altro, \verb|pid_steering|, per il controllo direzionale dello sterzo. Nel file sorgente \verb|PID.c| sono poi implementate le funzioni per l'inizializzazione (\verb|init_PID|), la taratura (\verb|tune_PID|) e il calcolo iterativo della legge di controllo (\verb|PID_controller|).
 \begin{lstlisting}[language=Cpp, caption={PID.h}, numbers=left, stepnumber=1]
 typedef struct PID{
@@ -1012,7 +1011,7 @@ Di seguito si analizzano nel dettaglio i parametri operativi della struttura:
     \item \textbf{\texttt{Iterm} - termine integrale:} funge da registro di memoria che somma e conserva lo storico degli errori nel tempo. Per ragioni di stabilità, la funzione \verb|PID_controller| integra una logica di \textit{clamping anti-windup}: se il controllore raggiunge i limiti di saturazione, l'aggiornamento di questa variabile viene bloccato per impedire uno sproporzionato accumulo dell'errore.
 \end{itemize}
 
-\subsubsection{PID.c}
+\subsection{PID.c}
 Il file sorgente \verb|PID.c| contiene l'implementazione logica e matematica delle funzioni necessarie al funzionamento del controllore a catena chiusa. Questo modulo gestisce l'intero ciclo di vita del PID, dall'impostazione iniziale fino al calcolo iterativo dello sforzo di controllo.
 \begin{lstlisting}[language=Cpp, caption={PID.c}, numbers=left, stepnumber=1]
 #include "PID.h"
@@ -1252,18 +1251,18 @@ void set_PWM_and_dir(uint32_t duty, uint8_t dir)
 \end{lstlisting}
 
 
-\section{Implementazione del Controllo dello Sterzo}
+\section{Implementazione relativa al controllo dello sterzo}
 
 In questa sezione si analizza l'implementazione del controllo dello sterzo, fondamentale per gestire la dinamica laterale e direzionale del veicolo. L'architettura di questo modulo si basa su un sistema di controllo retroazionato in catena chiusa per garantire un'elevata precisione di manovra.
 Il focus è posto sull'ottenere una proporzionalità tra la posizione della leva del radiocomando (Xb) e il tasso di imbardata (\textit{yaw rate}) del veicolo, ovvero la sua velocità di rotazione sull'asse verticale. In particolare, si impone una traiettoria rettilinea (tasso di rotazione nullo) in corrispondenza della leva in posizione neutra, mentre spostando la leva a destra o a sinistra viene calcolata una velocità di imbardata di riferimento (\verb|yaw_rate_ref|) proporzionale allo spostamento. 
 Il controllo della sterzata avviene tramite l'ausilio di un controllore PID dedicato (\verb|pid_steering|). Il sistema acquisisce in tempo reale la velocità angolare effettiva del veicolo (\textit{feedback}) leggendo i dati del giroscopio forniti dall'unità inerziale IMU BNO055. Il controllore PID confronta il riferimento richiesto dal pilota con il dato reale dell'IMU e calcola lo sforzo di controllo (\verb|u_sterzo|) necessario per annullare l'errore direzionale. 
 Infine, la variabile di uscita calcolata dal PID viene tradotta nel segnale di comando per il servomotore. La posizione angolare dell'albero dell'attuatore è determinata dalla larghezza dell'impulso del segnale PWM fornito al componente, il cui \textit{duty cycle} ruota attorno a un valore centrale di calibrazione che corrisponde alla marcia in rettilineo. L'algoritmo si occupa di aggiornare continuamente questo segnale in base all'uscita del controllore, assicurandosi al contempo che l'angolo calcolato non superi mai i limiti meccanici di sicurezza, bloccando la saturazione del servomotore all'interno del \textit{range} consentito tra -20 e +20 gradi.
 
-\subsubsection{Configurazione del Timer per l'attuazione dello sterzo (PWM)}
+\subsection{Configurazione del Timer per l'attuazione dello sterzo (PWM)}
 Per controllare fisicamente la posizione angolare del servomotore dello sterzo, è necessario generare un segnale PWM con caratteristiche ben precise. Per questo compito è stato scelto il \verb|TIM1|, assegnato al core \textit{Cortex-M7}, configurando il Canale 2 in modalità ``PWM Generation CH2''.
 I parametri fondamentali del timer sono stati calcolati per ottenere un segnale con una frequenza di 50 Hz (corrispondente a un periodo di 20 ms), che rappresenta lo standard industriale per il pilotaggio dei servomotori. Analizzando la configurazione:
 \begin{itemize}
-    \item \textbf{Prescaler (PSC):} è stato impostato al valore \verb|63|. Ipotizzando un \textit{clock} di base del timer a 64 MHz, questo divisore ($63 + 1$) abbassa la frequenza di conteggio esattamente a 1 MHz. Questa scelta fa sì che ogni singolo incremento del timer corrisponda esattamente a 1 microsecondo ($\mu s$), facilitando enormemente la gestione matematica delle ampiezze degli impulsi nel codice.
+    \item \textbf{Prescaler:} è stato impostato al valore \verb|63|. Ipotizzando un \textit{clock} di base del timer a 64 MHz, questo divisore ($63 + 1$) abbassa la frequenza di conteggio esattamente a 1 MHz. Questa scelta fa sì che ogni singolo incremento del timer corrisponda esattamente a 1 microsecondo ($\mu s$), facilitando enormemente la gestione matematica delle ampiezze degli impulsi nel codice.
     \item \textbf{Counter Period:} è stato impostato a \verb|19999|. Il timer è configurato in modalità ``Up'', quindi conta da 0 a 19999, compiendo 20000 passi prima di azzerarsi. Considerando la risoluzione temporale di 1 microsecondo ricavata dal Prescaler, il periodo totale del segnale PWM risulta essere esattamente di 20000 microsecondi, ovvero 20 millisecondi (50 Hz).
 \end{itemize}
 Per modificare dinamicamente il \textit{duty cycle} (e di conseguenza controllare l'angolo di sterzata del veicolo), il firmware agisce direttamente sul registro di comparazione associato al canale utilizzato, ovvero \verb|TIM1->CCR2|. Grazie a questa configurazione temporale così pulita, la scrittura nel registro è diretta: per posizionare il servomotore è sufficiente assegnare alla variabile del registro il valore esatto in microsecondi calcolato dall'algoritmo di controllo (tipicamente compreso nel \textit{range} operativo 1000 $\mu s$ - 2000 $\mu s$), garantendo una risposta istantanea e precisa della meccanica.
@@ -1299,9 +1298,9 @@ void servo_motor(float);
 
 #endif /* INC_SERVO_MOTOR_H_ */
 \end{lstlisting}
-I valori costanti \verb|DRITTO|, \verb|MAX_ANGOLO| e \verb|MIN_ANGOLO|, che dipendono dal tipo di servomotore utilizzato e dalla meccanica del veicolo, sono stati ottenuti sperimentalmente e rappresentano gli angoli di massima sterzata e quello neutro. Nello specifico, il valore di riposo impostato a 92 (anziché al teorico 90) è frutto di una calibrazione meccanica sul campo, necessaria per compensare i fisiologici giochi della tiranteria e garantire un moto della vettura perfettamente rettilineo quando il comando è azzerato.
+I valori costanti \verb|DRITTO|, \verb|MAX_ANGOLO| e \verb|MIN_ANGOLO|, che dipendono dal tipo di servomotore utilizzato e dalla meccanica del veicolo, sono stati ottenuti sperimentalmente e rappresentano gli angoli di massima sterzata e quello neutro. Nello specifico, il valore di riposo impostato a 92 (anziché al teorico 90) deriva da una calibrazione meccanica sul campo, necessaria per compensare i fisiologici giochi della tiranteria e garantire un moto della vettura perfettamente rettilineo quando il comando è azzerato.
 
-\subsubsection{bno055\_STM.h}
+\subsection{bno055\_STM.h}
 Questo file di intestazione funge da livello di astrazione (\textit{wrapper}) tra il driver di base del sensore inerziale BNO055 e le librerie hardware HAL del microcontrollore STM32. Al suo interno sono implementate le funzioni fondamentali per gestire la comunicazione fisica bidirezionale tramite il bus I2C e per adattare le tempistiche di ritardo all'ambiente di esecuzione.
 \begin{lstlisting}[language=Cpp, caption={bno055\_STM.h}]
 #ifndef INC_BNO055_STM32_H_
@@ -1426,7 +1425,7 @@ void bno055_readData(uint8_t reg, uint8_t *data, uint8_t len) {
 
 #endif /* INC_BNO055_STM32_H_ */
 \end{lstlisting}
-Il codice è strutturato per offrire la massima flessibilità e solidità architetturale. L'inserimento delle direttive per il C/C++ garantisce un'elevata portabilità del modulo, mentre la gestione condizionale di \verb|FreeRTOS| fa in modo che la funzione di ritardo adotti automaticamente istruzioni non bloccanti (come \verb|osDelay|) qualora sia attivo un sistema operativo in tempo reale. Inoltre, la comunicazione I2C è totalmente indipendente dallo specifico hardware utilizzato: ciò è reso possibile dall'impiego del puntatore globale \verb|_bno055_i2c_port|, che viene configurato dinamicamente in fase di avvio del sistema. Per concludere, le funzioni dedicate alla lettura e alla scrittura sono dotate di un meccanismo di diagnostica estremamente preciso. In caso di anomalie di comunicazione sul bus, il firmware analizza i registri del microcontrollore e trasmette sul terminale seriale la natura esatta dell'errore hardware (come ad esempio \textit{timeout}, collisioni o blocchi della macchina a stati), semplificando in modo decisivo le procedure di \textit{debug}.
+Il codice è strutturato per offrire la massima flessibilità e solidità architetturale. L'inserimento delle direttive per il C/C++ garantisce un'elevata portabilità del modulo, mentre la gestione condizionale di \verb|FreeRTOS| fa in modo che la funzione di ritardo adotti automaticamente istruzioni non bloccanti (come \verb|osDelay|) qualora sia attivo un sistema operativo in tempo reale. Inoltre, la comunicazione I2C è totalmente indipendente dallo specifico hardware utilizzato: ciò è reso possibile dall'impiego del puntatore globale \verb|_bno055_i2c_port|, che viene configurato dinamicamente in fase di avvio del sistema. A completamento del modulo, le funzioni di I/O implementano una diagnostica dettagliata degli errori: qualora si verifichino anomalie di comunicazione, il firmware analizza lo stato dei registri del microcontrollore e notifica via seriale la tipologia esatta di guasto hardware (come timeout), ottimizzando così le fasi di debug.
 
 \subsection{servo\_motor.c}
 Il file sorgente \verb|servo_motor.c| contiene l'implementazione pratica della funzione responsabile dell'attuazione fisica dello sterzo. L'intera logica di questa funzione è stata ingegnerizzata mettendo al primo posto la sicurezza meccanica e l'efficienza di calcolo.
@@ -1462,11 +1461,11 @@ void servo_motor(float deg_angle)
 }
 \end{lstlisting}
 
-\subsubsection{Calibrazione meccanica dello sterzo}
+\subsection{Calibrazione meccanica dello sterzo}
 Prima di eseguire i test dinamici del veicolo, è stato necessario effettuare una calibrazione preliminare del servomotore. Questa procedura operativa è indispensabile per determinare empiricamente le costanti \verb|DRITTO|, \verb|MAX_ANGOLO| e \verb|MIN_ANGOLO| definite all'interno del file di intestazione \verb|servo_motor.h|. Questi valori devono essere ricavati ogni volta che il servomotore viene montato sulla vettura, in quanto non è nota la posizione iniziale del servo prima di diventare solidale al sistema di sterzo della macchina. 
 Il primo passo della calibrazione consiste nel trovare l'angolo neutrale. Per farlo, si interviene sul valore della costante \verb|DRITTO| (fissata nel nostro caso a 92) effettuando delle prove finché le ruote anteriori non assumono una posizione perfettamente rettilinea.
 Trovare l'angolo massimo e minimo, invece, risulta più difficoltoso poiché i movimenti del servomotore non sono completamente fluidi e osservabili per ogni grado di rotazione in quanto affetti da un attrito statico che deve essere superato. Per aggirare questo problema, si è deciso di sviluppare una routine di test temporanea che incrementa l'angolo del servomotore in modo continuato, aumentandolo di un grado ogni secondo. Questo espediente permette di osservare la sterzata in tempo reale e stabilire visivamente il limite oltre il quale le ruote non riescono più a muoversi per via del finecorsa meccanico.
-Durante questa procedura, è molto importante tenere traccia in tempo reale dell'angolo del servomotore, stampandolo di volta in volta sul terminale. Mantenere uno storico di questi valori è fondamentale perché, attraverso prove ripetute, sarà possibile definire l'angolo massimo reale facendo la media tra tutti quelli trovati e ignorando in questo modo eventuali errori dovuti alle condizioni non ideali in cui si lavora (presenza di attrito e resistenze parassite).
+Durante questa procedura, è importante tenere traccia in tempo reale dell'angolo del servomotore, stampandolo di volta in volta sul terminale, attraverso prove ripetute, sarà possibile definire l'angolo massimo reale facendo la media tra tutti quelli trovati.
 A livello di codice, ci si è discostati dall'approccio del gruppo precedente (che gestiva l'incremento temporale all'interno della routine di \textit{interrupt}). Per mantenere il sistema leggero e coerente con la nostra architettura, la temporizzazione del test sfrutta il \verb|Flag_10ms| già presente nel \verb|while(1)|. Utilizzando un contatore ausiliario, si attende il passaggio di 100 cicli (corrispondenti a 1 secondo esatto) per aggiornare l'angolo.
 Ecco il frammento di codice utilizzato per il test di calibrazione nel ciclo principale:
 
