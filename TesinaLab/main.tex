@@ -973,12 +973,323 @@ double yaw_rate_ref_rad_sec; // [rad/s]
     \item \textbf{\texttt{yaw\_rate\_ref\_rad\_sec}}: memorizza la velocità di imbardata di riferimento, che corrisponde all'obiettivo di rotazione direzionale richiesto dal segnale del radiocomando.
 \end{itemize}
 
-\subsection{Gestione componente1}
+\subsubsection{PID.h}
+Nel file \verb|PID.h| viene definita la struttura dati astratta del controllore PID, essenziale per la logica di calcolo del sistema. A livello architetturale, vengono istanziati due controllori PID distinti: uno, \verb|pid_traction|, dedicato alla regolazione della velocità in entrambi i sensi di marcia e l'altro, \verb|pid_steering|, per il controllo direzionale dello sterzo. Nel file sorgente \verb|PID.c| sono poi implementate le funzioni per l'inizializzazione (\verb|init_PID|), la taratura (\verb|tune_PID|) e il calcolo iterativo della legge di controllo (\verb|PID_controller|).
+\begin{lstlisting}[language=Cpp, caption={PID.h}, numbers=left, stepnumber=1]
+typedef struct PID{
+	float Kp; //guadagno proporzionale
+	float Ki; //guadagno integrale
+	float Kd; //guadagno derivativo
 
-\subsection{Gestione componente2}
+	float Tc; //periodo
+	float u_max; //limite superiore
+	float u_min; //limite inferiore
 
-\section{Funzionamento complessivo}
-Dopo aver spiegato il codice che gestisce i singoli componenti, inserire e commentare le porzioni di codice relative al funzionamento complessivo del programma.
+	float e_old;
+	float Iterm;
+}PID;
+
+void init_PID(PID*, float, float, float);
+void tune_PID(PID*,float,float,float);
+float PID_controller(PID*,float,float);
+\end{lstlisting}
+
+Di seguito si analizzano nel dettaglio i parametri operativi della struttura:
+
+\begin{itemize}
+    \item \textbf{\texttt{Tc} - Periodo di campionamento:} rappresenta l'intervallo di tempo esatto tra due esecuzioni consecutive dell'algoritmo.
+    \item \textbf{\texttt{u\_max} e \texttt{u\_min} - limiti di saturazione:} definiscono il tetto massimo e il limite minimo consentiti per l'uscita del controllore. Qualora il calcolo matematico superi queste soglie, la funzione di controllo interviene tagliando l'uscita per mantenerla entro i limiti di sicurezza.
+    \item \textbf{\texttt{e\_old} - errore precedente:} memorizza il valore dell'errore misurato nel ciclo esecutivo appena trascorso. È necessario per calcolare l'azione derivativa, la quale valuta proprio la differenza tra l'errore nuovo e quello vecchio.
+    \item \textbf{\texttt{Iterm} - termine integrale:} funge da registro di memoria che somma e conserva lo storico degli errori nel tempo. Per ragioni di stabilità, la funzione \verb|PID_controller| integra una logica di \textit{clamping anti-windup}: se il controllore raggiunge i limiti di saturazione, l'aggiornamento di questa variabile viene bloccato per impedire uno sproporzionato accumulo dell'errore.
+\end{itemize}
+
+\subsubsection{PID.c}
+Il file sorgente \verb|PID.c| contiene l'implementazione logica e matematica delle funzioni necessarie al funzionamento del controllore a catena chiusa. Questo modulo gestisce l'intero ciclo di vita del PID, dall'impostazione iniziale fino al calcolo iterativo dello sforzo di controllo.
+\begin{lstlisting}[language=Cpp, caption={PID.c}, numbers=left, stepnumber=1]
+#include "PID.h"
+#include <stdio.h>
+
+void init_PID(PID* p, float Tc, float u_max, float u_min){
+	p->Tc = Tc;
+	p->u_max = u_max;
+	p->u_min = u_min;
+	p->Iterm = 0;
+	p->e_old = 0;
+}
+
+void tune_PID(PID*p, float Kp, float Ki, float Kd){
+	p->Kp = Kp;
+	p->Ki = Ki;
+	p->Kd = Kd;
+}
+
+float PID_controller(PID* p , float y, float r){
+	float u;
+	float newIterm;
+	float e = 0;
+
+	e = r-y;
+
+
+	float Pterm = p->Kp*e;
+	newIterm = p->Iterm + (p->Ki)*p->Tc*p->e_old;
+	float Dterm = (p->Kd/p->Tc)*(e - p->e_old);
+
+	p->e_old = e;
+
+	u = Pterm + newIterm + Dterm;
+
+	if(u > p->u_max){
+		u = p->u_max;
+	} else if(u < p->u_min){
+		u = p->u_min;
+	} else {
+		p->Iterm = newIterm;
+	}
+
+	return u;
+}
+\end{lstlisting}
+
+
+
+
+\section{Implementazione del Controllo dello Sterzo}
+
+In questa sezione si analizza l'implementazione del controllo dello sterzo, fondamentale per gestire la dinamica laterale e direzionale del veicolo. L'architettura di questo modulo si basa su un sistema di controllo retroazionato in catena chiusa per garantire un'elevata precisione di manovra.
+Il focus è posto sull'ottenere una proporzionalità tra la posizione della leva del radiocomando (Xb) e il tasso di imbardata (\textit{yaw rate}) del veicolo, ovvero la sua velocità di rotazione sull'asse verticale. In particolare, si impone una traiettoria rettilinea (tasso di rotazione nullo) in corrispondenza della leva in posizione neutra, mentre spostando la leva a destra o a sinistra viene calcolata una velocità di imbardata di riferimento (\verb|yaw_rate_ref|) proporzionale allo spostamento. 
+Il controllo della sterzata avviene tramite l'ausilio di un controllore PID dedicato (\verb|pid_steering|). Il sistema acquisisce in tempo reale la velocità angolare effettiva del veicolo (\textit{feedback}) leggendo i dati del giroscopio forniti dall'unità inerziale IMU BNO055. Il controllore PID confronta il riferimento richiesto dal pilota con il dato reale dell'IMU e calcola lo sforzo di controllo (\verb|u_sterzo|) necessario per annullare l'errore direzionale. 
+Infine, la variabile di uscita calcolata dal PID viene tradotta nel segnale di comando per il servomotore. La posizione angolare dell'albero dell'attuatore è determinata dalla larghezza dell'impulso del segnale PWM fornito al componente, il cui \textit{duty cycle} ruota attorno a un valore centrale di calibrazione che corrisponde alla marcia in rettilineo. L'algoritmo si occupa di aggiornare continuamente questo segnale in base all'uscita del controllore, assicurandosi al contempo che l'angolo calcolato non superi mai i limiti meccanici di sicurezza, bloccando la saturazione del servomotore all'interno del \textit{range} consentito tra -20 e +20 gradi.
+
+\subsubsection{Configurazione del Timer per l'attuazione dello sterzo (PWM)}
+Per controllare fisicamente la posizione angolare del servomotore dello sterzo, è necessario generare un segnale PWM con caratteristiche ben precise. Per questo compito è stato scelto il \verb|TIM1|, assegnato al core \textit{Cortex-M7}, configurando il Canale 2 in modalità ``PWM Generation CH2''.
+I parametri fondamentali del timer sono stati calcolati per ottenere un segnale con una frequenza di 50 Hz (corrispondente a un periodo di 20 ms), che rappresenta lo standard industriale per il pilotaggio dei servomotori. Analizzando la configurazione:
+\begin{itemize}
+    \item \textbf{Prescaler (PSC):} è stato impostato al valore \verb|63|. Ipotizzando un \textit{clock} di base del timer a 64 MHz, questo divisore ($63 + 1$) abbassa la frequenza di conteggio esattamente a 1 MHz. Questa scelta fa sì che ogni singolo incremento del timer corrisponda esattamente a 1 microsecondo ($\mu s$), facilitando enormemente la gestione matematica delle ampiezze degli impulsi nel codice.
+    \item \textbf{Counter Period:} è stato impostato a \verb|19999|. Il timer è configurato in modalità ``Up'', quindi conta da 0 a 19999, compiendo 20000 passi prima di azzerarsi. Considerando la risoluzione temporale di 1 microsecondo ricavata dal Prescaler, il periodo totale del segnale PWM risulta essere esattamente di 20000 microsecondi, ovvero 20 millisecondi (50 Hz).
+\end{itemize}
+Per modificare dinamicamente il \textit{duty cycle} (e di conseguenza controllare l'angolo di sterzata del veicolo), il firmware agisce direttamente sul registro di comparazione associato al canale utilizzato, ovvero \verb|TIM1->CCR2|. Grazie a questa configurazione temporale così pulita, la scrittura nel registro è diretta: per posizionare il servomotore è sufficiente assegnare alla variabile del registro il valore esatto in microsecondi calcolato dall'algoritmo di controllo (tipicamente compreso nel \textit{range} operativo 1000 $\mu s$ - 2000 $\mu s$), garantendo una risposta istantanea e precisa della meccanica.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Timer1.png}
+    \caption{Configurazione del TIM1 per l'attuazione dello sterzo}
+    \label{fig:timer1}
+\end{figure}
+
+\subsubsection{servo\_motor.h}
+Questo file di intestazione contiene il prototipo della funzione che si occuperà di generare il segnale PWM da fornire al servomotore, più altre costanti utili per la gestione dell'angolo di sterzata.
+\begin{lstlisting}[language=Cpp, caption={servo\_motor.h}]
+#include <main.h>
+
+#ifndef INC_SERVO_MOTOR_H_
+#define INC_SERVO_MOTOR_H_
+
+#define DRITTO 92
+#define MAX_ANGOLO 20
+#define MIN_ANGOLO -20
+#define PI 3.141592654
+
+void servo_motor(float);
+
+#endif /* INC_SERVO_MOTOR_H_ */
+\end{lstlisting}
+I valori costanti \verb|DRITTO|, \verb|MAX_ANGOLO| e \verb|MIN_ANGOLO|, che dipendono dal tipo di servomotore utilizzato e dalla meccanica del veicolo, sono stati ottenuti sperimentalmente e rappresentano gli angoli di massima sterzata e quello neutro. Nello specifico, il valore di riposo impostato a 92 (anziché al teorico 90) è frutto di una calibrazione meccanica sul campo, necessaria per compensare i fisiologici giochi della tiranteria e garantire un moto della vettura perfettamente rettilineo quando il comando è azzerato.
+
+\subsubsection{bno055\_STM.h}
+Questo file di intestazione funge da livello di astrazione (\textit{wrapper}) tra il driver di base del sensore inerziale BNO055 e le librerie hardware HAL del microcontrollore STM32. Al suo interno sono implementate le funzioni fondamentali per gestire la comunicazione fisica bidirezionale tramite il bus I2C e per adattare le tempistiche di ritardo all'ambiente di esecuzione.
+\begin{lstlisting}[language=Cpp, caption={bno055\_STM.h}]
+#ifndef INC_BNO055_STM32_H_
+#define INC_BNO055_STM32_H_
+
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
+// Includiamo main.h per importare in automatico stm32h7xx_hal.h
+#include "main.h"
+
+#ifdef FREERTOS_ENABLED
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
+#endif
+
+#include "bno055.h"
+#include <stdio.h>
+
+// Puntatore all'handle dell'I2C (sara inizializzato con &hi2c1)
+I2C_HandleTypeDef *_bno055_i2c_port;
+
+void bno055_assignI2C(I2C_HandleTypeDef *hi2c_device) {
+  _bno055_i2c_port = hi2c_device;
+}
+void bno055_delay(int time) {
+#ifdef FREERTOS_ENABLED
+  osDelay(time);
+#else
+  HAL_Delay(time);
+#endif
+}
+
+void bno055_writeData(uint8_t reg, uint8_t data) {
+  uint8_t txdata[2] = {reg, data};
+  uint8_t status;
+
+  // Scrittura via I2C
+  status = HAL_I2C_Master_Transmit(_bno055_i2c_port, BNO055_I2C_ADDR << 1,
+                                   txdata, sizeof(txdata), 10);
+  if (status == HAL_OK) {
+    return;
+  }
+
+  // Gestione Status
+  if (status == HAL_ERROR) {
+    printf("HAL_I2C_Master_Transmit HAL_ERROR\r\n");
+  } else if (status == HAL_TIMEOUT) {
+    printf("HAL_I2C_Master_Transmit HAL_TIMEOUT\r\n");
+  } else if (status == HAL_BUSY) {
+    printf("HAL_I2C_Master_Transmit HAL_BUSY\r\n");
+  } else {
+    printf("Unknown status data %d\r\n", status);
+  }
+
+  // Gestione Errori specifici
+  uint32_t error = HAL_I2C_GetError(_bno055_i2c_port);
+  if (error == HAL_I2C_ERROR_NONE) {
+    return;
+  } else if (error == HAL_I2C_ERROR_BERR) {
+    printf("HAL_I2C_ERROR_BERR\r\n");
+  } else if (error == HAL_I2C_ERROR_ARLO) {
+    printf("HAL_I2C_ERROR_ARLO\r\n");
+  } else if (error == HAL_I2C_ERROR_AF) {
+    printf("HAL_I2C_ERROR_AF\r\n");
+  } else if (error == HAL_I2C_ERROR_OVR) {
+    printf("HAL_I2C_ERROR_OVR\r\n");
+  } else if (error == HAL_I2C_ERROR_DMA) {
+    printf("HAL_I2C_ERROR_DMA\r\n");
+  } else if (error == HAL_I2C_ERROR_TIMEOUT) {
+    printf("HAL_I2C_ERROR_TIMEOUT\r\n");
+  }
+
+  // Gestione Macchina a Stati (Pulita per STM32H7)
+  HAL_I2C_StateTypeDef state = HAL_I2C_GetState(_bno055_i2c_port);
+  if (state == HAL_I2C_STATE_RESET) {
+    printf("HAL_I2C_STATE_RESET\r\n");
+  } else if (state == HAL_I2C_STATE_READY) {
+    printf("HAL_I2C_STATE_READY\r\n");
+  } else if (state == HAL_I2C_STATE_BUSY) {
+    printf("HAL_I2C_STATE_BUSY\r\n");
+  } else if (state == HAL_I2C_STATE_BUSY_TX) {
+    printf("HAL_I2C_STATE_BUSY_TX\r\n");
+  } else if (state == HAL_I2C_STATE_BUSY_RX) {
+    printf("HAL_I2C_STATE_BUSY_RX\r\n");
+  } else if (state == HAL_I2C_STATE_LISTEN) {
+    printf("HAL_I2C_STATE_LISTEN\r\n");
+  } else if (state == HAL_I2C_STATE_BUSY_TX_LISTEN) {
+    printf("HAL_I2C_STATE_BUSY_TX_LISTEN\r\n");
+  } else if (state == HAL_I2C_STATE_BUSY_RX_LISTEN) {
+    printf("HAL_I2C_STATE_BUSY_RX_LISTEN\r\n");
+  } else if (state == HAL_I2C_STATE_ABORT) {
+    printf("HAL_I2C_STATE_ABORT\r\n");
+  }
+}
+
+void bno055_readData(uint8_t reg, uint8_t *data, uint8_t len) {
+    HAL_StatusTypeDef ret;
+    ret = HAL_I2C_Master_Transmit(_bno055_i2c_port, BNO055_I2C_ADDR << 1, &reg, 1, 100);
+    ret = HAL_I2C_Master_Receive(_bno055_i2c_port, BNO055_I2C_ADDR << 1, data, len, 100);
+
+    if (ret == HAL_OK) {
+        return;
+    }
+
+    if (ret == HAL_ERROR) {
+        printf("HAL_I2C_Master_Transmit/Receive HAL_ERROR\r\n");
+    } else if (ret == HAL_TIMEOUT) {
+        printf("HAL_I2C_Master_Transmit/Receive HAL_TIMEOUT\r\n");
+    } else if (ret == HAL_BUSY) {
+        printf("HAL_I2C_Master_Transmit/Receive HAL_BUSY\r\n");
+    } else {
+        printf("Unknown status data %d\r\n", ret);
+    }
+}
+
+#ifdef __cplusplus
+  }
+#endif
+
+#endif /* INC_BNO055_STM32_H_ */
+\end{lstlisting}
+Il codice è strutturato per offrire la massima flessibilità e solidità architetturale. L'inserimento delle direttive per il C/C++ garantisce un'elevata portabilità del modulo, mentre la gestione condizionale di \verb|FreeRTOS| fa in modo che la funzione di ritardo adotti automaticamente istruzioni non bloccanti (come \verb|osDelay|) qualora sia attivo un sistema operativo in tempo reale. Inoltre, la comunicazione I2C è totalmente indipendente dallo specifico hardware utilizzato: ciò è reso possibile dall'impiego del puntatore globale \verb|_bno055_i2c_port|, che viene configurato dinamicamente in fase di avvio del sistema. Per concludere, le funzioni dedicate alla lettura e alla scrittura sono dotate di un meccanismo di diagnostica estremamente preciso. In caso di anomalie di comunicazione sul bus, il firmware analizza i registri del microcontrollore e trasmette sul terminale seriale la natura esatta dell'errore hardware (come ad esempio \textit{timeout}, collisioni o blocchi della macchina a stati), semplificando in modo decisivo le procedure di \textit{debug}.
+
+\subsection{servo\_motor.c}
+Il file sorgente \verb|servo_motor.c| contiene l'implementazione pratica della funzione responsabile dell'attuazione fisica dello sterzo. L'intera logica di questa funzione è stata ingegnerizzata mettendo al primo posto la sicurezza meccanica e l'efficienza di calcolo.
+Inizialmente, la funzione riceve in ingresso l'angolo di sterzata desiderato, calcolato dall'algoritmo di controllo a partire dal riferimento \verb|Xb|. Prima di qualsiasi elaborazione, questo valore viene vincolato rigidamente entro i limiti fisici della vettura (\verb|MIN_ANGOLO| e \verb|MAX_ANGOLO|). Questo \textit{clamping} previene sforzi eccessivi e rotture dei tiranti meccanici nel caso di \textit{setpoint} anomali.
+Successivamente, l'angolo relativo appena verificato viene sommato alla costante \verb|DRITTO|, che rappresenta l'offset meccanico del centro. In questo modo il sistema passa da un riferimento relativo a un angolo reale assoluto, che il braccetto del servomotore deve fisicamente raggiungere. Questo angolo assoluto viene poi convertito nel tempo di accensione dell'impulso PWM (\verb|t_on|) tramite un'equazione lineare. I coefficienti numerici presenti nella formula (come 1815.0, 57.0 e 7.3255814) non sono arbitrari, ma derivano da una rigorosa calibrazione sperimentale effettuata direttamente sulla risposta del vostro specifico servomotore, garantendo una precisione di posizionamento elevatissima.
+Come ulteriore livello di protezione, il tempo calcolato in microsecondi subisce una saturazione hardware, venendo limitato tra i 500 microsecondi e i 2500 microsecondi. Questi valori rappresentano gli estremi operativi standard per i servomotori da modellismo; inviare segnali esterni a questo intervallo causerebbe il surriscaldamento del motore interno e la conseguente rottura dell'attuatore. Infine, sfruttando la configurazione a 1 MHz del timer (dove un singolo incremento equivale esattamente a un microsecondo), il valore finale calcolato viene tradotto in un numero intero a 32 bit e sovrascritto direttamente nel registro hardware \verb|CCR2| del \verb|TIM1|. Questo azionamento diretto a basso livello permette di aggiornare il \textit{duty cycle} istantaneamente, annullando di fatto le latenze software.
+\begin{lstlisting}[language=Cpp, caption={servo\_motor.c}]
+#include "servo_motor.h"
+
+void servo_motor(float deg_angle)
+{
+    //Limiti sicurezza
+    if(deg_angle < MIN_ANGOLO)
+        deg_angle = MIN_ANGOLO;
+    else if (deg_angle > MAX_ANGOLO)
+        deg_angle = MAX_ANGOLO;
+
+    //Calcolo angolo reale
+    float conv_angolo = deg_angle + DRITTO;
+
+    //Calcolo in microsecondi
+    float t_on = 1815.0 - (conv_angolo - 57.0) * 7.3255814;
+
+    //Controllo di sicurezza(500us - 2500us)
+    if (t_on < 500.0) {
+        t_on = 500.0;
+    } else if (t_on > 2500.0) {
+        t_on = 2500.0;
+    }
+
+    //Invio diretto al timer
+    TIM1->CCR2 = (uint32_t)t_on;
+}
+\end{lstlisting}
+
+\subsubsection{Calibrazione meccanica dello sterzo}
+Prima di eseguire i test dinamici del veicolo, è stato necessario effettuare una calibrazione preliminare del servomotore. Questa procedura operativa è indispensabile per determinare empiricamente le costanti \verb|DRITTO|, \verb|MAX_ANGOLO| e \verb|MIN_ANGOLO| definite all'interno del file di intestazione \verb|servo_motor.h|. Questi valori devono essere ricavati ogni volta che il servomotore viene montato sulla vettura, in quanto non è nota la posizione iniziale del servo prima di diventare solidale al sistema di sterzo della macchina. 
+Il primo passo della calibrazione consiste nel trovare l'angolo neutrale. Per farlo, si interviene sul valore della costante \verb|DRITTO| (fissata nel nostro caso a 92) effettuando delle prove finché le ruote anteriori non assumono una posizione perfettamente rettilinea.
+Trovare l'angolo massimo e minimo, invece, risulta più difficoltoso poiché i movimenti del servomotore non sono completamente fluidi e osservabili per ogni grado di rotazione in quanto affetti da un attrito statico che deve essere superato. Per aggirare questo problema, si è deciso di sviluppare una routine di test temporanea che incrementa l'angolo del servomotore in modo continuato, aumentandolo di un grado ogni secondo. Questo espediente permette di osservare la sterzata in tempo reale e stabilire visivamente il limite oltre il quale le ruote non riescono più a muoversi per via del finecorsa meccanico.
+Durante questa procedura, è molto importante tenere traccia in tempo reale dell'angolo del servomotore, stampandolo di volta in volta sul terminale. Mantenere uno storico di questi valori è fondamentale perché, attraverso prove ripetute, sarà possibile definire l'angolo massimo reale facendo la media tra tutti quelli trovati e ignorando in questo modo eventuali errori dovuti alle condizioni non ideali in cui si lavora (presenza di attrito e resistenze parassite).
+A livello di codice, ci si è discostati dall'approccio del gruppo precedente (che gestiva l'incremento temporale all'interno della routine di \textit{interrupt}). Per mantenere il sistema leggero e coerente con la nostra architettura, la temporizzazione del test sfrutta il \verb|Flag_10ms| già presente nel \verb|while(1)|. Utilizzando un contatore ausiliario, si attende il passaggio di 100 cicli (corrispondenti a 1 secondo esatto) per aggiornare l'angolo.
+Ecco il frammento di codice utilizzato per il test di calibrazione nel ciclo principale:
+
+\begin{lstlisting}[language=Cpp, caption={Loop del test per la calibrazione del servomotore}]
+/* Variabili di test definite fuori dal while(1) */
+int contatore_secondo = 0;
+float angolo_test = 0.0f;
+
+/* All'interno del ciclo while(1) */
+if (Flag_10ms == 1) 
+{
+    // ... eventuale altro codice a 10ms ...
+
+    contatore_secondo++;
+    
+    // Scatta ogni 100 * 10ms = 1000ms (1 secondo)
+    if (contatore_secondo >= 100) 
+    {
+        contatore_secondo = 0;
+        angolo_test++; 
+        
+        servo_motor(angolo_test);
+        printf("Angolo attuale: %f\r\n", angolo_test);
+    }
+}
+\end{lstlisting}
+Per testare l'angolo minimo di sterzo (quindi dalla parte opposta) sarà sufficiente sostituire \verb|angolo_test++;| con \verb|angolo_test--;|.
+
+
 
 \chapter{Test e risultati}
 La presente sezione è dedicata all'analisi sperimentale e alla validazione sul campo degli algoritmi di controllo implementati sul microcontrollore. Al fine di valutare in modo completo e rigoroso le performance dinamiche del prototipo, si avranno due macro-aree fondamentali. Dapprima verranno esposti e discussi i risultati relativi al controllo della trazione e, successivamente, l'attenzione si sposterà sulla validazione del controllo direzionale dello sterzo, esaminando la risposta del sistema ai riferimenti di imbardata, i limiti fisici della cinematica del veicolo e l'impatto del filtraggio digitale sull'affidabilità della telemetria. 

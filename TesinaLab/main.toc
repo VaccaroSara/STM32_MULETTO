@@ -36,12 +36,17 @@
 \contentsline {subsubsection}{Ciclo di esecuzione principale - Main loop}{27}{subsubsection*.30}%
 \contentsline {subsection}{\numberline {4.2.2}Controllo della trazione}{28}{subsection.4.2.2}%
 \contentsline {subsubsection}{File e strutture dati per il controllo}{28}{subsubsection*.31}%
-\contentsline {subsection}{\numberline {4.2.3}Gestione componente1}{31}{subsection.4.2.3}%
-\contentsline {subsection}{\numberline {4.2.4}Gestione componente2}{31}{subsection.4.2.4}%
-\contentsline {section}{\numberline {4.3}Funzionamento complessivo}{31}{section.4.3}%
-\contentsline {chapter}{\numberline {5}Test e risultati}{32}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Trazione}{32}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Sterzo}{37}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Variazione velocità lineare}{41}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Varazione velocità angolare}{42}{subsection.5.2.2}%
-\contentsline {chapter}{Conclusioni e sviluppi futuri}{46}{figure.caption.47}%
+\contentsline {subsubsection}{PID.h}{31}{subsubsection*.32}%
+\contentsline {subsubsection}{PID.c}{32}{subsubsection*.33}%
+\contentsline {section}{\numberline {4.3}Implementazione del Controllo dello Sterzo}{33}{section.4.3}%
+\contentsline {subsubsection}{Configurazione del Timer per l'attuazione dello sterzo (PWM)}{33}{subsubsection*.34}%
+\contentsline {subsubsection}{servo\_motor.h}{35}{subsubsection*.36}%
+\contentsline {subsubsection}{bno055\_STM.h}{36}{subsubsection*.37}%
+\contentsline {subsection}{\numberline {4.3.1}servo\_motor.c}{38}{subsection.4.3.1}%
+\contentsline {subsubsection}{Calibrazione meccanica dello sterzo}{40}{subsubsection*.38}%
+\contentsline {chapter}{\numberline {5}Test e risultati}{42}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Trazione}{42}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Sterzo}{47}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Variazione velocità lineare}{51}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Varazione velocità angolare}{52}{subsection.5.2.2}%
+\contentsline {chapter}{Conclusioni e sviluppi futuri}{56}{figure.caption.54}%
