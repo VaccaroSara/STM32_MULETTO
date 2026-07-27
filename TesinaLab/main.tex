@@ -1752,7 +1752,7 @@ int fir_index = 0;
 \noindent Come si evince dai due grafici, la velocità angolare reale (curva blu) non riesce in alcun modo a raggiungere il setpoint desiderato, assestandosi su valori medi nettamente inferiori: circa -0.55 rad/s nel test a 0.9 m/s e circa -0.45 rad/s in quello a 0.8 m/s. Essendo l'angolo di sterzo vincolato via software e hardware a un massimo di $\pm 20^\circ$, il prototipo possiede un raggio di curvatura minimo invalicabile. Poiché la velocità di imbardata è direttamente proporzionale alla velocità longitudinale di marcia, a parità di angolo di sterzo massimo, una riduzione della velocità rettilinea comporta inevitabilmente una diminuzione della massima velocità angolare raggiungibile.
 In questi scenari, il regolatore riconosce l'errore e satura correttamente l'azione di controllo al suo limite massimo, ma il veicolo risulta fisicamente impossibilitato a curvare in modo più restrittivo. 
 
-\subsection{Varazione velocità angolare}
+\subsection{Variazione velocità angolare}
 \noindent Nella seconda fase di test, riportando e mantenendo costante la velocità di traslazione al valore nominale, è stata sollecitata la dinamica laterale variando il setpoint dello yaw rate. Il sistema è stato sottoposto a richieste di sterzata di diversa entità: sono state investigate dinamiche più blande, testando riferimenti di 0.6 rad/s e 0.8 rad/s, e manovre via via più aggressive, innalzando la richiesta a 1.2 rad/s e 1.4 rad/s. Questo ha permesso di delineare in modo completo i limiti operativi del controllore e i vincoli fisici del servomotore.
 
 \begin{figure}[H]

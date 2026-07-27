@@ -51,5 +51,5 @@
 \contentsline {section}{\numberline {5.1}Trazione}{48}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Sterzo}{53}{section.5.2}%
 \contentsline {subsection}{\numberline {5.2.1}Variazione velocità lineare}{57}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Varazione velocità angolare}{58}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.2}Variazione velocità angolare}{58}{subsection.5.2.2}%
 \contentsline {chapter}{Conclusioni e sviluppi futuri}{62}{figure.caption.56}%

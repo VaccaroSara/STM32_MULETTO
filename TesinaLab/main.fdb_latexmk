@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1785162688.13843 "main.aux" "main.bbl" "main" 1785162726.97148 0
+["bibtex main"] 1785178976.35479 "main.aux" "main.bbl" "main" 1785178985.81704 0
   "./bibl.bib" 1785084091.08039 1158 4d85faef93a3ad8d33a8926a1ffe96a0 ""
   "/usr/local/texlive/2025/texmf-dist/bibtex/bst/base/ieeetr.bst" 1292289607 18361 1a00e58565e7f19bf2b3e1bfb82254ae ""
-  "main.aux" 1785162726.69261 23194 d57fb49da7780c6a65fc91cc5c23a29d "pdflatex"
+  "main.aux" 1785178985.57139 23195 2e37516923409e7f3173d58465849024 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1785162717.36347 "/Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex" "main.pdf" "main" 1785162726.97167 0
-  "/Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex" 1785162717.05194 112229 6202ab5702c80b02a7a2db2843a0b26b ""
+["pdflatex"] 1785178976.48362 "/Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex" "main.pdf" "main" 1785178985.8172 0
+  "/Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex" 1785178966.38115 112230 ced2ed4d97c96363a203deaa5962e7a8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1136768653 1536 02c06700a42be0f5a28664c7273f82e7 ""
@@ -184,11 +184,11 @@
   "images/sterzo_120_60_0.8ms.png" 1785076976 37223 d31fceda55a4438457d3708c1569f14e ""
   "images/sterzo_120_60_1.2radss.png" 1785076707 38434 0e38a362f3290b9dbb6be59c2a9c0882 ""
   "images/telaio.png" 1781950652.17133 627661 a5f5de3345ed49d907d1a68771430445 ""
-  "main.aux" 1785162726.69261 23194 d57fb49da7780c6a65fc91cc5c23a29d "pdflatex"
-  "main.bbl" 1785162688.22644 1019 85ece194489f318c1fdd41a9a64ee958 "bibtex main"
-  "main.out" 1785162726.6945 8349 260eee097ef4a2c30c705849fe88ed59 "pdflatex"
-  "main.tex" 1785162717.05194 112229 6202ab5702c80b02a7a2db2843a0b26b ""
-  "main.toc" 1785162726.69475 4741 f04925720bc4380ab9c4ca430219b337 "pdflatex"
+  "main.aux" 1785178985.57139 23195 2e37516923409e7f3173d58465849024 "pdflatex"
+  "main.bbl" 1785178976.48072 1019 85ece194489f318c1fdd41a9a64ee958 "bibtex main"
+  "main.out" 1785178985.57323 8354 6719b470d90c24a46f79f4da98840971 "pdflatex"
+  "main.tex" 1785178966.38115 112230 ced2ed4d97c96363a203deaa5962e7a8 ""
+  "main.toc" 1785178985.5735 4742 ceac6d9bb97f6c4264b9f29e9648f693 "pdflatex"
   (generated)
   "main.aux"
   "main.log"
