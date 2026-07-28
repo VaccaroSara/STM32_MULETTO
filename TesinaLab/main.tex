@@ -216,32 +216,8 @@ permettendo di verificare concretamente la prontezza e la stabilità della rispo
 
 \newpage
 \chapter{Descrizione del sistema}
-La seguente relazione si basa sull'analisi dell'architettura di comunicazione via radio tra radiocomando e microcontrollore. Nel dettaglio, il trasmettitore impiega onde elettromagnetiche per l'invio dei pacchetti dati, sfruttando la modulazione di un'onda portante che codifica le informazioni variando parametri dell'onda stessa, quali l'ampiezza, la frequenza o la fase. L'espressione matematica dell'onda portante è definita dalla seguente funzione:
-
-\begin{equation}
-    s(t) = A \cos(2\pi f_c t + \phi)
-\end{equation}
-
-\noindent dove:
-\begin{itemize}
-    \item $A$: ampiezza dell'onda;
-    \item $f_c$: frequenza portante;
-    \item $t$: tempo;
-    \item $\phi$: fase iniziale.
-\end{itemize}
-
-\noindent
-L'azione dell'utente sui comandi del radiocomando genera una sequenza di bit, segnale elettrico, che l'antenna del trasmettitore provvede a convertire in onda elettromagnetica, irradiandola nello spazio a una determinata frequenza $f$. Il modulo ricevitore, essendo sintonizzato sulla stessa frequenza, intercetta il segnale e lo riconverte nel formato elettrico. Questi dati vengono poi inoltrati al microcontrollore, il quale ha il compito di interpretare le istruzioni e comandare l'hardware per eseguire determinate azioni. 
-\noindent
-Per la traduzione pratica dei comandi, il microcontrollore impiega la modulazione a larghezza di impulso, PWM. Il parametro fondamentale per questa tecnica è il \textit{Duty Cycle}, calcolato come segue:
-
-\begin{equation}
-    \text{Duty Cycle (\%)} = \frac{T_{on}}{T_{on} + T_{off}} \times 100
-\end{equation}
-
-\noindent dove $T_{on}$ è la durata dell'impulso ``alto'', $T_{off}$ la durata dell'impulso ``basso'' e la loro somma definisce il periodo totale dell'onda.
-\noindent
-Per quanto riguarda l'analisi della traiettoria del veicolo, si adotta il modello cinematico della bicicletta, approssimando la dinamica del veicolo a quattro ruote riducendola a due. Le equazioni cinematiche descrivono il moto attraverso le variabili di posizione $(x,y)$ e l'angolo di orientamento della vettura. Considerando costante la velocità $v$ del veicolo, l'assenza di slittamento e che l'intera rotazione del veicolo avvenga attorno al CIR (Centro Istantaneo di Rotazione), il modello viene descritto dal seguente sistema:
+La seguente relazione si basa sull'analisi dell'architettura di comunicazione via radio tra radiocomando e microcontrollore. 
+Per analizzare la traiettoria del veicolo, si adotta il modello cinematico della bicicletta, approssimando la dinamica del veicolo a quattro ruote riducendola a due. Le equazioni cinematiche descrivono il moto attraverso le variabili di posizione $(x,y)$ e l'angolo di orientamento della vettura. Considerando costante la velocità $v$ del veicolo, l'assenza di slittamento e che l'intera rotazione del veicolo avvenga attorno al CIR (Centro Istantaneo di Rotazione), il modello viene descritto dal seguente sistema:
 
 \begin{equation}
     \begin{cases}
@@ -528,6 +504,33 @@ ricevitore e trasmettitore che hanno le seguenti caratteristiche:
 
 \subsection{Funzionamento}
 Il trasmettitore e il ricevitore comunicano tramite onde radio, le quali fungono da vettore per le istruzioni di comando generate dal pilota. Il modulo ricevitore svolge un ruolo cruciale in questa architettura: elabora i pacchetti radio in ingresso e genera in uscita un segnale PWM indipendente per ciascun canale. La variazione del \textit{Duty Cycle} di questi segnali traduce proporzionalmente i movimenti fisici eseguiti sul radiocomando in dati quantificabili dal microcontrollore.
+Nel dettaglio, il trasmettitore impiega onde elettromagnetiche per l'invio dei pacchetti dati, sfruttando la modulazione di un'onda portante che codifica le informazioni variando parametri dell'onda stessa, quali l'ampiezza, la frequenza o la fase. L'espressione matematica dell'onda portante è definita dalla seguente funzione:
+\begin{equation}
+    s(t) = A \cos(2\pi f_c t + \phi)
+\end{equation}
+
+\noindent dove:
+\begin{itemize}
+    \item $A$: ampiezza dell'onda;
+    \item $f_c$: frequenza portante;
+    \item $t$: tempo;
+    \item $\phi$: fase iniziale.
+\end{itemize}
+
+\noindent
+L'azione dell'utente sui comandi del radiocomando genera una sequenza di bit, segnale elettrico, che l'antenna del trasmettitore provvede a convertire in onda elettromagnetica, irradiandola nello spazio a una determinata frequenza $f$. Il modulo ricevitore, essendo sintonizzato sulla stessa frequenza, intercetta il segnale e lo riconverte nel formato elettrico. Questi dati vengono poi inoltrati al microcontrollore, il quale ha il compito di interpretare le istruzioni e comandare l'hardware per eseguire determinate azioni. 
+\noindent
+Per la traduzione pratica dei comandi, il microcontrollore impiega la modulazione a larghezza di impulso, PWM. Il parametro fondamentale per questa tecnica è il \textit{Duty Cycle}, calcolato come segue:
+
+\begin{equation}
+    \text{Duty Cycle (\%)} = \frac{T_{on}}{T_{on} + T_{off}} \times 100
+\end{equation}
+
+\noindent dove $T_{on}$ è la durata dell'impulso ``alto'', $T_{off}$ la durata dell'impulso ``basso'' e la loro somma definisce il periodo totale dell'onda.
+\noindent
+
+
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{images/RadiocomandoFunz} 
@@ -638,10 +641,18 @@ la “Polarity Section”, ovvero a quale evento del segnale si è interessati: 
 di salita), “Falling Edge” (fronte di discesa), “Both Edges” (fronte di salita e di discesa).
 
 \subsubsection{Impostazioni timer}
-I timer permettono di misurare il tempo e quindi di ottenere i valori desiderati dalla ricevente. Per l'utilizzo dell'Input Capture (sfruttando i canali PA0 e PA3 del TIM5) si è deciso di utilizzare un timer con un clock di 64 MHz, che viene diviso dal "Prescaler". Poiché a livello hardware il microcontrollore somma sempre 1 al valore del registro, per ottenere un clock effettivo di 1 MHz il parametro è stato settato a 63, calcolato mediante la formula $PSC = \frac{64.000.000}{1.000.000} - 1$.
+
+I timer permettono di misurare accuratamente gli intervalli temporali, requisito fondamentale per acquisire e decodificare i segnali della ricevente. Per la gestione dell'\textit{Input Capture} (sfruttando i canali PA0 e PA3 del TIM5) il modulo è alimentato da un clock di base pari a 64 MHz.
+
+Per ottenere una risoluzione temporale ideale per la misurazione, si è deciso di ridurre la frequenza di conteggio operativa del timer a 1 MHz tramite l'utilizzo del registro \textit{Prescaler} (PSC). 
+
+Dal punto di vista architetturale, l'hardware del microcontrollore STM32 divide la frequenza di partenza per un fattore pari al valore contenuto nel registro PSC, incrementato di un'unità. Pertanto, per ottenere una divisione effettiva per 64, il parametro da impostare a livello software deve essere 63. La logica di calcolo è descritta dalla seguente equazione:
+
+$$PSC = \frac{f_{clock}}{f_{target}} - 1 = \frac{64.000.000}{1.000.000} - 1 = 63$$
 
 \noindent Inoltre, poiché la frequenza minima leggibile è data da $\frac{TIMCLOCK}{COUNTERPERIOD}$, si è deciso di lasciare il "Counter Period" al massimo, ovvero 0xffffffff (corrispondente a 4294967295) essendo il TIM5 un timer a 32 bit.
-    \begin{figure}[H]
+
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth,keepaspectratio]{images/Tim5_mode.png}
 \caption{Configurazione del TIM5}
@@ -663,7 +674,7 @@ I timer permettono di misurare il tempo e quindi di ottenere i valori desiderati
 \end{figure}
 
 \subsubsection{Acquisizione del segnale PWM}
-Il segnale PWM in uscita dal ricevitore del radiocomando presenta una frequenza fissa (tipicamente 50 Hz, pari a un periodo di 20 ms). Pertanto, il calcolo della frequenza risulta irrilevante ai fini del controllo dinamico del veicolo. L'informazione vitale legata al comando impartito dal pilota risiede unicamente nella larghezza dell'impulso alto ($T_{on}$), che varia proporzionalmente al movimento delle levette in un intervallo tipicamente compreso tra 1000 $\mu$s e 2000 $\mu$s.
+Il segnale PWM in uscita dal ricevitore del radiocomando presenta una frequenza fissa (tipicamente 50 Hz, pari a un periodo di 20 ms). Pertanto, il calcolo della frequenza, poiché costante,risulta irrilevante ai fini del controllo dinamico del veicolo. L'informazione vitale legata al comando impartito dal pilota risiede unicamente nella larghezza dell'impulso alto ($T_{on}$), che varia proporzionalmente al movimento delle levette in un intervallo tipicamente compreso tra 1ms e 2ms.
 
 \noindent Per acquisire direttamente questo dato vitale, si è configurato il parametro ``Polarity Selection'' su ``Both Edges'' all'interno dell'ambiente di sviluppo, discostandosi da un approccio basato sul solo fronte di salita. 
 
@@ -674,9 +685,11 @@ Il segnale PWM in uscita dal ricevitore del radiocomando presenta una frequenza 
 \label{fig:polarity_both}
 \end{figure}
 
-\noindent La logica di acquisizione è gestita all'interno della funzione di callback \texttt{HAL\_TIM\_IC\_CaptureCal\allowbreak lback}. Tramite l'ausilio di flag di stato (come \texttt{Is\_First\_Captured\_\allowbreak Steering}), il sistema salva il valore del contatore hardware al verificarsi del fronte di salita, commutando contestualmente la sensibilità del canale sul fronte opposto. Al successivo fronte di discesa, il contatore viene letto nuovamente per poterne calcolare la differenza temporale.
+\noindent La logica di acquisizione è gestita all'interno della funzione di callback \verb|HAL_TIM_IC_CaptureCal|\allowbreak\verb|lback|. Poiché la medesima funzione di interruzione viene richiamata dall'hardware per ogni variazione di stato logico del pin, è necessario l'ausilio di un flag di stato (come \verb|Is_First_Captured_|\allowbreak\verb|Steering|) per fungere da memoria e permettere al sistema di distinguere se il fronte rilevato corrisponda all'inizio o alla fine dell'impulso.
 
-\noindent Poiché il timer opera con un clock effettivo di 1 MHz, la differenza algebrica tra le due letture restituisce la durata dell'impulso espressa direttamente in microsecondi. Tale valore viene salvato nelle variabili globali (\texttt{steering\_us} e \texttt{throttle\_us}) per essere impiegato come setpoint, a patto che superi il controllo di sicurezza implementato per scartare letture anomale esterne al range nominale (600--2400 $\mu$s).
+\noindent Nello specifico, al verificarsi del fronte di salita elettrico dell'onda PWM, il sistema salva il valore attuale del contatore hardware, imposta il flag per indicare che la misurazione è iniziata, e commuta contestualmente la sensibilità del canale sul fronte opposto. Al successivo fronte di discesa elettrico, il contatore viene letto nuovamente. È fondamentale precisare che questa commutazione di lettura (salita e discesa) si riferisce esclusivamente alla forma d'onda elettrica del segnale a 50 Hz inviato dalla ricevente, la quale si ripete ciclicamente e indipendentemente dalla direzione in cui il pilota sta muovendo i comandi.
+
+\noindent Poiché il timer opera con un clock effettivo di 1 MHz, la differenza algebrica tra le due letture restituisce la durata dell'impulso alto ($T_{on}$) espressa direttamente in microsecondi. Tale valore viene salvato nelle variabili globali (\verb|Xa| e \verb|Xb|) per essere impiegato come setpoint, a patto che superi il controllo di sicurezza implementato per scartare letture anomale esterne al range nominale (600--2400 µs).
 
 \begin{lstlisting}[language=Cpp, caption="Codice per la lettura del segnale PWM tramite Input Capture"]
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
@@ -749,15 +762,15 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 \end{lstlisting}
 
 \subsubsection{Gestione degli Interrupt e ottimizzazione dei Timer}
+L'obiettivo del sistema di acquisizione è misurare esclusivamente il tempo in cui il segnale PWM in ingresso si trova a livello logico alto ($T_{on}$). Questa precisa durata temporale, infatti, è direttamente proporzionale alla posizione fisica della levetta del radiocomando mossa dal pilota e costituisce il valore numerico che verrà assegnato come setpoint.
 
-A differenza delle classiche implementazioni hardware che prevedono l'azzeramento forzato del contatore del timer ad ogni fronte di salita (metodologia che impedisce la lettura simultanea di più canali e costringe all'utilizzo di molteplici timer), in questo progetto si è optato per un approccio software non distruttivo.
+A differenza delle classiche implementazioni hardware che prevedono l'azzeramento forzato del contatore del timer ad ogni fronte di salita (metodologia che impedisce la lettura simultanea di più canali e costringe all'utilizzo di molteplici timer), in questo progetto si è optato per un approccio software "non distruttivo". Come si evince dalla configurazione di sistema in STM32CubeMX, il timer dedicato alla decodifica (TIM5) è impiegato sui canali 1 e 4 in modalità \textit{Input Capture direct mode}, ma il suo contatore viene fatto avanzare in modo continuo (fino al suo limite massimo a 32 bit, pari a 4294967295) senza mai subire reset forzati. 
 
-\noindent Come si evince dalla configurazione di sistema in STM32CubeMX, il timer dedicato alla decodifica (TIM5) è attivamente impiegato sui canali 1 e 4 in modalità \textit{Input Capture direct mode}, ma il suo contatore viene fatto avanzare in modo continuo (fino al suo limite massimo a 32 bit, pari a 4294967295) senza mai subire reset forzati. All'attivazione dell'interrupt, la \textit{callback} si limita a "fotografare" il valore assoluto del registro, tramite la funzione \verb|HAL_TIM_ReadCapturedValue|.
+\noindent All'attivazione dell'interrupt, la callback si limita a "fotografare" il valore assoluto del registro tramite la funzione \verb|HAL_TIM_ReadCapturedValue|. La durata dell'impulso alto viene così ricavata puramente per differenza matematica, sottraendo il timestamp memorizzato al momento della salita da quello acquisito al momento della discesa. 
 
+\noindent Il risultato di questa sottrazione rappresenta l'esatta durata del segnale alto generato dalla levetta e viene salvato nelle variabili di sistema \verb|Xa| e \verb|Xb|. Per prevenire errori di calcolo nel raro caso in cui avvenga un overflow del timer proprio durante la lettura di un impulso, l'algoritmo include un controllo condizionale che compensa il riavvio del conteggio sommando il limite massimo del registro.
 
-\noindent La durata dell'impulso viene così ricavata puramente per differenza matematica tra il timestamp di discesa e quello di salita. Per prevenire errori di calcolo nel raro caso in cui avvenga un overflow del timer proprio durante un impulso, l'algoritmo include un controllo condizionale che compensa il riavvio del conteggio sommano il complemento a due del limite massimo.
-
-Questa architettura software garantisce numerosi vantaggi:
+\noindent Questa architettura software garantisce numerosi vantaggi:
 \begin{itemize}
     \item \textbf{Ottimizzazione delle risorse:} consente di gestire in modo totalmente asincrono e indipendente l'acquisizione dei comandi Xa e Xb utilizzando un unico timer (TIM5) e due soli canali, riducendo il carico computazionale e liberando le restanti periferiche del microcontrollore.
     \item \textbf{Assenza di interferenze:} poiché il contatore principale non viene mai azzerato, l'arrivo di un interrupt sul canale dedicato a Xb non corrompe in alcun modo il conteggio temporale in corso sul canale di Xa, garantendo una precisione assoluta su entrambi i segnali in ingresso.
@@ -822,8 +835,9 @@ if (steering_filtered > 1460.0f && steering_filtered < 1560.0f) {
 \end{enumerate}
 
 \subsubsection{Operazioni di inizializzazione e avvio dei Timer}
-L'approccio implementato per l'avvio e la configurazione del sistema all'interno del \verb|main.c| si basa su una logica del tutto asincrona e non bloccante. Le operazioni iniziali si limitano ad avviare le periferiche necessarie in sequenza, delegando l'intera logica di allineamento al fronte d'onda alla macchina a stati finiti (gestita tramite i flag software) implementata direttamente all'interno della routine di \textit{interrupt}.
-In particolare, per quanto riguarda l'acquisizione dei segnali provenienti dal radiocomando (Xa per la trazione e Xb per lo sterzo), è sufficiente abilitare gli \textit{interrupt} legati all'Input Capture sui canali 1 e 4 del TIM5. Contestualmente, viene avviato il timer di base (TIM6) che scandisce il ciclo di controllo primario ogni 10 ms.
+L'approccio implementato per l'avvio e la configurazione del sistema all'interno del file \verb|main.c| si basa su una logica asincrona rispetto all'arrivo dei segnali del radiocomando e non bloccante per il normale flusso di esecuzione del programma. Anziché arrestare la CPU in un ciclo di attesa finché non viene ricevuto e decodificato il primo impulso PWM valido, le operazioni iniziali si limitano ad avviare le periferiche necessarie in rapida sequenza. 
+L'intera logica di sincronizzazione e allineamento al fronte d'onda viene infatti delegata a una macchina a stati finiti (gestita tramite flag software) implementata direttamente all'interno della routine di interruzione hardware. In particolare, per quanto riguarda l'acquisizione dei segnali provenienti dal radiocomando (\verb|Xa| per la trazione e \verb|Xb| per lo sterzo), è sufficiente abilitare all'avvio gli interrupt legati all'Input Capture sui canali 1 e 4 del TIM5. 
+Contestualmente, viene avviato il timer di base (TIM6) che scandisce il ciclo di controllo primario ogni 10 ms. In questo modo, il ciclo principale (il \verb|while(1)|) e le routine di controllo sono liberi di avviarsi istantaneamente, elaborando i dati in background man mano che gli interrupt hardware notificano, in modo asincrono, il completamento di una nuova lettura.
 \begin{lstlisting}[language=Cpp, caption="Avvio delle periferiche hardware e del sistema di controllo"]
 // Avvio del Timer per il ciclo di esecuzione a 10ms
 HAL_TIM_Base_Start_IT(&htim6);
@@ -886,9 +900,9 @@ L'implementazione matematica dei filtri di validazione e le logiche di mappatura
 dedicati al \textbf{Controllo della Trazione} e al \textbf{Controllo dello Sterzo}.
 
 \section{Implementazione relativa al controllo della trazione}
-\noindent In merito al controllo della trazione si è deciso di utilizzare un controllo a catena chiusa: si utilizzano come feedback le letture provenienti dall’encoder correggendo i risultati utilizzando un singolo controllore PID per regolare l'intensità della velocità, mentre il senso di marcia viene gestito separatamente tramite un apposito pin digitale. Il riferimento viene dato dal radiocomando tramite la levetta a destra. La velocità del veicolo aumenterà all’aumentare della “posizione” della levetta, così come la vettura andrà in retromarcia spingendo la leva verso il basso. All’interno del codice sono stati utilizzati diversi file di intestazione e file sorgente, per ottenere un codice modulare: al fine di svolgere i test in modo più preciso e in sicurezza, il limite massimo di potenza inviata al motore (Duty Cycle del segnale PWM) è stato bloccato al 20%, e per i test di base è stata impostata una velocità di riferimento di 5 cm/s, all'interno di un sistema calibrato per mappare velocità fino a 1 m/s. 
+\noindent In merito al controllo della trazione si è deciso di utilizzare un controllo a catena chiusa: si utilizzano come feedback le letture provenienti dall’encoder correggendo i risultati utilizzando un singolo controllore PID per regolare l'intensità della velocità, mentre il senso di marcia viene gestito separatamente tramite un apposito pin digitale. Il riferimento viene dato dal radiocomando tramite la levetta a destra. La velocità del veicolo aumenterà all’aumentare della “posizione” della levetta, così come la vettura andrà in retromarcia spingendo la leva verso il basso. All’interno del codice sono stati utilizzati diversi file di intestazione e file sorgente, per ottenere un codice modulare: al fine di svolgere i test in modo più preciso e in sicurezza, il limite massimo di potenza inviata al motore (Duty Cycle del segnale PWM) è stato bloccato al 20\%. 
 
-Nelle prossime sezioni si riportano i file, le definizioni e le strutture utilizzate per il controllo della trazione e dello sterzo, commentandone le costanti e i prototipi di funzione.
+\noindent Nelle prossime sezioni si riportano i file, le definizioni e le strutture utilizzate per il controllo della trazione e dello sterzo, commentandone le costanti e i prototipi di funzione.
 
 \vspace{0.4cm}
 \subsection{DC\_motor.h} 
@@ -1215,7 +1229,7 @@ if (Flag_10ms == 1)
 \end{figure}
 
 \begin{lstlisting}[language=Cpp, caption={Main.c: funzioni di conversione e attuazione a basso livello}, numbers=left, stepnumber=1]
-Funzioni di conversione e attuazione a basso livello (DC_motor.c). 
+//Funzioni di conversione e attuazione a basso livello (DC_motor.c). 
 float DegreeSec2RPM(float speed_degsec){
 	float speed_rpm = speed_degsec * 60/360;
 	return speed_rpm;
@@ -1430,8 +1444,8 @@ Il codice è strutturato per offrire la massima flessibilità e solidità archit
 \subsection{servo\_motor.c}
 Il file sorgente \verb|servo_motor.c| contiene l'implementazione pratica della funzione responsabile dell'attuazione fisica dello sterzo. L'intera logica di questa funzione è stata ingegnerizzata mettendo al primo posto la sicurezza meccanica e l'efficienza di calcolo.
 Inizialmente, la funzione riceve in ingresso l'angolo di sterzata desiderato, calcolato dall'algoritmo di controllo a partire dal riferimento \verb|Xb|. Prima di qualsiasi elaborazione, questo valore viene vincolato rigidamente entro i limiti fisici della vettura (\verb|MIN_ANGOLO| e \verb|MAX_ANGOLO|). Questo \textit{clamping} previene sforzi eccessivi e rotture dei tiranti meccanici nel caso di \textit{setpoint} anomali.
-Successivamente, l'angolo relativo appena verificato viene sommato alla costante \verb|DRITTO|, che rappresenta l'offset meccanico del centro. In questo modo il sistema passa da un riferimento relativo a un angolo reale assoluto, che il braccetto del servomotore deve fisicamente raggiungere. Questo angolo assoluto viene poi convertito nel tempo di accensione dell'impulso PWM (\verb|t_on|) tramite un'equazione lineare. I coefficienti numerici presenti nella formula (come 1815.0, 57.0 e 7.3255814) non sono arbitrari, ma derivano da una rigorosa calibrazione sperimentale effettuata direttamente sulla risposta del vostro specifico servomotore, garantendo una precisione di posizionamento elevatissima.
-Come ulteriore livello di protezione, il tempo calcolato in microsecondi subisce una saturazione hardware, venendo limitato tra i 500 microsecondi e i 2500 microsecondi. Questi valori rappresentano gli estremi operativi standard per i servomotori da modellismo; inviare segnali esterni a questo intervallo causerebbe il surriscaldamento del motore interno e la conseguente rottura dell'attuatore. Infine, sfruttando la configurazione a 1 MHz del timer (dove un singolo incremento equivale esattamente a un microsecondo), il valore finale calcolato viene tradotto in un numero intero a 32 bit e sovrascritto direttamente nel registro hardware \verb|CCR2| del \verb|TIM1|. Questo azionamento diretto a basso livello permette di aggiornare il \textit{duty cycle} istantaneamente, annullando di fatto le latenze software.
+Successivamente, l'angolo relativo appena verificato viene sommato alla costante \verb|DRITTO|, che rappresenta l'offset meccanico del centro. In questo modo il sistema passa da un riferimento relativo a un angolo reale assoluto, che il braccetto del servomotore deve fisicamente raggiungere. Questo angolo assoluto viene poi convertito nel tempo di accensione dell'impulso PWM (\verb|t_on|) tramite un'equazione lineare. I coefficienti numerici presenti nella formula (come 1815.0, 57.0 e 7.3255814) non sono arbitrari, ma derivano da una rigorosa calibrazione sperimentale effettuata direttamente sulla risposta del nostro specifico servomotore, garantendo una precisione di posizionamento elevatissima.
+Come ulteriore livello di protezione, il tempo calcolato in microsecondi subisce una saturazione hardware, venendo limitato tra i 1000 microsecondi e i 2000 microsecondi. Questi valori rappresentano gli estremi operativi standard per i servomotori da modellismo; inviare segnali esterni a questo intervallo causerebbe il surriscaldamento del motore interno e la conseguente rottura dell'attuatore. Infine, sfruttando la configurazione a 1 MHz del timer (dove un singolo incremento equivale esattamente a un microsecondo), il valore finale calcolato viene tradotto in un numero intero a 32 bit e sovrascritto direttamente nel registro hardware \verb|CCR2| del \verb|TIM1|. Questo azionamento diretto a basso livello permette di aggiornare il \textit{duty cycle} istantaneamente, annullando di fatto le latenze software.
 \begin{lstlisting}[language=Cpp, caption={servo\_motor.c}]
 #include "servo_motor.h"
 
@@ -1683,7 +1697,7 @@ legend('Comando (Riferimento)', 'Realta (IMU)', 'Location', 'best');
     \end{minipage}
 \end{figure}
 
-\noindent Nel primo grafico, relativo all'utilizzo del doppio filtro in cascata, si può notare come il segnale misurato (curva blu) risulti fluido. Tuttavia, questo eccessivo filtraggio introduce un grave ritardo di fase nell'anello di controllo. A causa di questo ritardo, il controllore reagisce in ritardo all'errore, innescando un'ampia e lenta oscillazione sottosmorzata. Nel secondo grafico, che illustra la risposta con il singolo filtro FIR, il comportamento dinamico risulta nettamente superiore. Il tempo di risposta del veicolo migliora e, inoltre, una volta giunto a regime, il sistema oscilla con frequenza maggiore ma con ampiezza estremamente ridotta attorno al riferimento desiderato, senza presentare le profonde derive osservate nel test precedente. L'utilizzo di un singolo filtro FIR in retroazione si è dunque confermata la scelta decisiva.
+\noindent Nel primo grafico, relativo all'utilizzo del doppio filtro in cascata, si può notare come il segnale misurato (curva blu) risulti fluido. Tuttavia, questo eccessivo filtraggio introduce un grave ritardo di fase nell'anello di controllo. A causa di questo ritardo, il controllore reagisce in ritardo all'errore, innescando un'ampia e lenta oscillazione sottosmorzata. Nel secondo grafico, che illustra la risposta con il singolo filtro FIR, il comportamento dinamico risulta nettamente superiore. Il tempo di risposta del veicolo migliora e, inoltre, una volta giunto a regime, il sistema oscilla con frequenza maggiore. L'utilizzo di un singolo filtro FIR in retroazione si è dunque confermata la scelta decisiva.
 
 \vspace{0.4cm}
 \noindent A valle della scelta architetturale relativa all'utilizzo di un singolo filtro FIR in retroazione, si è proceduto all'ottimizzazione del suo ordine, ovvero l'ampiezza della finestra mobile di campionamento. L'obiettivo era individuare la dimensione minima capace di garantire una pulizia del segnale sufficientemente precisa, riducendo al minimo indispensabile il ritardo di elaborazione introdotto nell'anello di controllo.
@@ -1788,7 +1802,7 @@ In questi scenari, il regolatore riconosce l'errore e satura correttamente l'azi
 \newpage
 \addcontentsline{toc}{chapter}{Conclusioni e sviluppi futuri}
 \section*{Conclusioni e sviluppi futuri}
-Il task principale consisteva nel realizzare un'architettura di controllo completa, in grado di acquisire i comandi del radiocomando, elaborare i dati sensoriali e tarare adeguatamente i PID per la trazione e lo sterzo. Complessivamente, gli obiettivi fondamentali del progetto sono stati raggiunti. Il controllo di trazione, attuato sul motore DC e retroazionato tramite encoder, ha dimostrato un ottimo inseguimento del riferimento di velocità lineare, evidenziando tempi di salita ridotti e un Errore Quadratico Medio del tutto trascurabile. Parallelamente, grazie all'implementazione di filtri digitali FIR sia singoli che in cascata, che hanno permesso di ripulire efficacemente il segnale, etto dall'IMU, è stato possibile stabilizzare la risposta direzionale del veicolo, ottimizzando le prestazioni dell'anello chiuso senza introdurre latenze eccessive nel sistema.
+Il task principale consisteva nel realizzare un'architettura di controllo completa, in grado di acquisire i comandi del radiocomando, elaborare i dati sensoriali e tarare adeguatamente i PID per la trazione e lo sterzo. Complessivamente, gli obiettivi fondamentali del progetto sono stati raggiunti. Il controllo di trazione, attuato sul motore DC e retroazionato tramite encoder, ha dimostrato un ottimo inseguimento del riferimento di velocità lineare. Parallelamente, grazie all'implementazione di filtri digitali FIR sia singoli che in cascata, che hanno permesso di ripulire efficacemente il segnale, letto dall'IMU, è stato possibile stabilizzare la risposta direzionale del veicolo, ottimizzando le prestazioni dell'anello chiuso senza introdurre latenze eccessive nel sistema.
 \noindent Alla luce dei risultati sperimentali e delle limitazioni fisiche evidenziate, un naturale sviluppo futuro riguarderebbe l'implementazione di diverse mappature di guida, selezionabili in tempo reale tramite i canali ausiliari del radiocomando. Questo approccio permetterebbe di modificare dinamicamente a runtime i guadagni dei regolatori PID, le costanti di tempo dei filtri FIR o i limiti massimi di velocità e imbardata. Si potrebbero così creare profili di guida differenziati, ad esempio una modalità \textit{Eco/Smooth} per transitori dolci e una modalità \textit{Sport} per la massima reattività, adattando istantaneamente il comportamento del prototipo alle esigenze del pilota o alle condizioni della superficie di prova.
 
 \bibliographystyle{ieeetr}
