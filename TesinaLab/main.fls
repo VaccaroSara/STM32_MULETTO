@@ -1,8 +1,8 @@
-PWD /Users/tareknaja/Desktop/Uni/Lab Auto/STM32_MULETTO/TesinaLab
+PWD /Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab
 INPUT /usr/local/texlive/2025/texmf.cnf
 INPUT /usr/local/texlive/2025/texmf-dist/web2c/texmf.cnf
 INPUT /usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT /Users/tareknaja/Desktop/Uni/Lab Auto/STM32_MULETTO/TesinaLab/main.tex
+INPUT /Users/sara/Desktop/3-ANNO/Lab Auto/STM32_MULETTO/TesinaLab/main.tex
 OUTPUT main.log
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/report.cls
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/report.cls

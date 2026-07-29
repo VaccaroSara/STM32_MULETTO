@@ -685,7 +685,7 @@ Il segnale PWM in uscita dal ricevitore del radiocomando presenta una frequenza 
 \label{fig:polarity_both}
 \end{figure}
 
-\noindent La logica di acquisizione è gestita all'interno della funzione di callback \verb|HAL_TIM_IC_CaptureCal|\allowbreak\verb|lback|. Poiché la medesima funzione di interruzione viene richiamata dall'hardware per ogni variazione di stato logico del pin, è necessario l'ausilio di un flag di stato (come \verb|Is_First_Captured_|\allowbreak\verb|Steering|) per fungere da memoria e permettere al sistema di distinguere se il fronte rilevato corrisponda all'inizio o alla fine dell'impulso.
+\noindent La logica di acquisizione è gestita all'interno della funzione di callback \verb|HAL_TIM_IC_CaptureCal|\allowbreak\verb|lback|. Poiché la medesima funzione di interruzione viene richiamata dall'hardware per ogni variazione di stato logico del pin, è necessario l'ausilio di un flag di stato (come \verb|Is_First_Cap|\allowbreak\verb|tured_Steering|) per fungere da memoria e permettere al sistema di distinguere se il fronte rilevato corrisponda all'inizio o alla fine dell'impulso.
 
 \noindent Nello specifico, al verificarsi del fronte di salita elettrico dell'onda PWM, il sistema salva il valore attuale del contatore hardware, imposta il flag per indicare che la misurazione è iniziata, e commuta contestualmente la sensibilità del canale sul fronte opposto. Al successivo fronte di discesa elettrico, il contatore viene letto nuovamente. È fondamentale precisare che questa commutazione di lettura (salita e discesa) si riferisce esclusivamente alla forma d'onda elettrica del segnale a 50 Hz inviato dalla ricevente, la quale si ripete ciclicamente e indipendentemente dalla direzione in cui il pilota sta muovendo i comandi.
 
@@ -764,7 +764,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 \subsubsection{Gestione degli Interrupt e ottimizzazione dei Timer}
 L'obiettivo del sistema di acquisizione è misurare esclusivamente il tempo in cui il segnale PWM in ingresso si trova a livello logico alto ($T_{on}$). Questa precisa durata temporale, infatti, è direttamente proporzionale alla posizione fisica della levetta del radiocomando mossa dal pilota e costituisce il valore numerico che verrà assegnato come setpoint.
 
-A differenza delle classiche implementazioni hardware che prevedono l'azzeramento forzato del contatore del timer ad ogni fronte di salita (metodologia che impedisce la lettura simultanea di più canali e costringe all'utilizzo di molteplici timer), in questo progetto si è optato per un approccio software "non distruttivo". Come si evince dalla configurazione di sistema in STM32CubeMX, il timer dedicato alla decodifica (TIM5) è impiegato sui canali 1 e 4 in modalità \textit{Input Capture direct mode}, ma il suo contatore viene fatto avanzare in modo continuo (fino al suo limite massimo a 32 bit, pari a 4294967295) senza mai subire reset forzati. 
+\noindent A differenza delle classiche implementazioni hardware che prevedono l'azzeramento forzato del contatore del timer ad ogni fronte di salita (metodologia che impedisce la lettura simultanea di più canali e costringe all'utilizzo di molteplici timer), in questo progetto si è optato per un approccio software "non distruttivo". Come si evince dalla configurazione di sistema in STM32CubeMX, il timer dedicato alla decodifica (TIM5) è impiegato sui canali 1 e 4 in modalità \textit{Input Capture direct mode}, ma il suo contatore viene fatto avanzare in modo continuo (fino al suo limite massimo a 32 bit, pari a 4294967295) senza mai subire reset forzati. 
 
 \noindent All'attivazione dell'interrupt, la callback si limita a "fotografare" il valore assoluto del registro tramite la funzione \verb|HAL_TIM_ReadCapturedValue|. La durata dell'impulso alto viene così ricavata puramente per differenza matematica, sottraendo il timestamp memorizzato al momento della salita da quello acquisito al momento della discesa. 
 
@@ -1594,7 +1594,51 @@ fprintf('MSE Finale: %.6f\n', mse_attuale);
 clear s;
 \end{lstlisting}
 
-\noindent Il codice appena illustrato si occupa di inizializzare la comunicazione seriale configurando la porta dedicata e il corretto baud rate. Successivamente, predispone un grafico dinamico e, tramite un ciclo iterativo, legge i pacchetti in arrivo isolando i valori della velocità di riferimento e di quella reale. Oltre a tracciare le due curve in tempo reale, lo script calcola e aggiorna dinamicamente a schermo il valore dell'Errore Quadratico Medio (MSE), permettendo di valutare istantaneamente la bontà dell'inseguimento del setpoint, per poi arrestarsi automaticamente al raggiungimento del limite prefissato di campioni.
+\noindent Il codice appena illustrato si occupa di inizializzare la comunicazione seriale configurando la porta dedicata e il corretto baud rate. In particolare, la comunicazione tra il microcontrollore STM32 e MATLAB avviene mediante interfaccia UART, sfruttando la funzione \texttt{printf()} reindirizzata verso la periferica seriale tramite la routine \texttt{\_write()}. Di seguito sono riportati i frammenti di codice sorgente che implementano la temporizzazione e il conseguente invio dei dati:
+
+\begin{lstlisting}[language=Cpp, caption="Main.c"]
+if (Flag_10ms == 1)
+{
+    Flag_10ms = 0;
+
+    ...
+    printf("R,%.4f,%.4f\r\n", speed_ref_test, vehicleState.linear_speed_m_s);
+    ...
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Cpp, caption="Main.c"]
+/* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+    if (htim == &htim6) {
+        Flag_10ms = 1;
+        time_counter++;
+
+        if (time_counter == 200) {
+            data.curvature_radius_ref_m = 1.3;
+            pid_steering.Iterm = 0;
+            pid_steering.e_old = 0;
+        }
+        if (time_counter == 580) {
+            data.enable = 0;
+        }
+    }
+}
+
+//USART3 -> ST_Link UART for DEBUG with USB
+int _write(int file, char *ptr, int len) {
+	HAL_UART_Transmit(&huart3, (uint8_t*)ptr, len, HAL_MAX_DELAY);
+		return len;
+}
+
+...
+/* USER CODE END 4 */
+\end{lstlisting}
+
+\noindent In questo modo ogni chiamata a \texttt{printf()} viene trasmessa sulla porta seriale e resa disponibile al software MATLAB. Durante il ciclo di controllo, con periodo di campionamento pari a 10 ms, il firmware acquisisce la velocità reale dall'encoder e calcola la corrispondente velocità di riferimento.
+
+\noindent Sul fronte della ricezione, lo \textit{script} intercetta questo flusso continuo di dati. Dapprima predispone un grafico dinamico e, tramite un ciclo iterativo, legge i pacchetti in arrivo isolando i valori della velocità di riferimento e di quella reale. Oltre a tracciare le due curve in tempo reale, il codice calcola e aggiorna dinamicamente a schermo il valore dell'Errore Quadratico Medio (MSE), permettendo di valutare istantaneamente la bontà dell'inseguimento del \textit{setpoint}, per poi arrestarsi automaticamente al raggiungimento del limite prefissato di campioni.
+\vspace{0.4cm}
 \noindent La taratura del controllore è stata ottimizzata specificamente per una velocità di riferimento di 1 m/s, di cui è stata analizzata la risposta a gradino. Il grafico ottenuto è il seguente:
 
 \begin{figure}[H]
